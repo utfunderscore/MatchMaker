@@ -1,0 +1,25 @@
+package com.readutf.matchmaker.packet.packets;
+
+import com.readutf.matchmaker.packet.Packet;
+import lombok.Getter;
+
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * Sent by client servers to the orchestration server to unregister themselves
+ */
+@Getter
+public class ServerUnregisterPacket extends Packet {
+
+    private final List<UUID> serverIds;
+
+    public ServerUnregisterPacket(List<UUID> serverId) {
+        this.serverIds = serverId;
+    }
+
+    public ServerUnregisterPacket(UUID serverId) {
+        this.serverIds = List.of(serverId);
+    }
+
+}
