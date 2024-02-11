@@ -6,6 +6,7 @@ import com.readutf.matchmaker.packet.PacketManager;
 import com.readutf.matchmaker.packet.serializers.ServerHeartbeatSerializer;
 import com.readutf.matchmaker.packet.serializers.ServerRegisterSerializer;
 import com.readutf.matchmaker.packet.serializers.ServerUnregisterSerializer;
+import com.readutf.matchmaker.queue.QueueManager;
 import com.readutf.matchmaker.server.ServerManager;
 import com.readutf.matchmaker.server.socket.ServerUpdateManager;
 import io.netty.channel.Channel;
@@ -26,6 +27,7 @@ public class ErosServer {
     private final ServerManager serverManager;
     private final EndpointManager endpointManager;
     private final ServerUpdateManager serverUpdateManager;
+    private final QueueManager queueManager;
     private final Timer timer;
     private final Channel channel;
     private final String address;
@@ -38,7 +40,8 @@ public class ErosServer {
         this.packetManager = setupPacketManager();
         this.networkManager = new NetworkManager(Executors.newCachedThreadPool(), packetManager);
         this.serverUpdateManager = new ServerUpdateManager(timer);
-        this.endpointManager = new EndpointManager(serverUpdateManager);
+        this.queueManager = new QueueManager();
+        this.endpointManager = new EndpointManager(queueManager, serverUpdateManager);
         this.channel = networkManager.startConnection(address, port);
         logger.info("Orchestrator started on " + address + ":" + port);
         this.serverManager = new ServerManager(serverUpdateManager, packetManager);
