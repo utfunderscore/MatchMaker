@@ -15,7 +15,7 @@ public class SerializationTests {
     @Test
     void serverSerialization() {
 
-        Server server = new Server(UUID.randomUUID(), 25, 25, "localhost", "test", 25565, System.currentTimeMillis(), new HashMap<>());
+        Server server = new Server(UUID.randomUUID(), 25, "localhost", "test", 25565, System.currentTimeMillis(), new HashMap<>());
 
         ByteBuf byteBuf = Unpooled.buffer(20);
         Server.encodeServer(server, byteBuf);
@@ -30,7 +30,7 @@ public class SerializationTests {
 
         ServerRegisterSerializer serializer = new ServerRegisterSerializer();
 
-        Server server = new Server(UUID.randomUUID(), 25, 25, "localhost", "test", 25565, System.currentTimeMillis(), new HashMap<>());
+        Server server = new Server(UUID.randomUUID(), 25, "localhost", "test", 25565, System.currentTimeMillis(), new HashMap<>());
         ServerRegisterPacket data = new ServerRegisterPacket(List.of(server));
 
         ByteBuf encode = serializer.encode(data);
