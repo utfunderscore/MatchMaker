@@ -111,6 +111,10 @@ public class ServerManager {
         return registeredServers.get(serverId);
     }
 
+    public Collection<RegisteredServer> getServers() {
+        return registeredServers.values();
+    }
+
     /**
      * Get a server by its unique id
      * @param channel - The server's tcp channel

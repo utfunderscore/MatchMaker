@@ -1,5 +1,7 @@
 package com.readutf.matchmaker.api;
 
+import com.readutf.matchmaker.matches.MatchManager;
+import com.readutf.matchmaker.matches.api.MatchEndpoints;
 import com.readutf.matchmaker.queue.QueueManager;
 import com.readutf.matchmaker.queue.api.QueueEndpoints;
 import com.readutf.matchmaker.server.socket.ServerUpdateManager;
@@ -9,7 +11,7 @@ import io.javalin.json.JavalinGson;
 
 public class EndpointManager {
 
-    public EndpointManager(QueueManager queueManager, ServerUpdateManager serverUpdateManager) {
+    public EndpointManager(QueueManager queueManager, ServerUpdateManager serverUpdateManager, MatchManager matchManager) {
         QueueEndpoints queueEndpoints = new QueueEndpoints(queueManager);
 
         Javalin
@@ -18,6 +20,7 @@ public class EndpointManager {
                 .get("/queue/list", queueEndpoints.getQueues())
                 .put("/queue/filter", queueEndpoints.createFilter())
                 .get("/queue/filters", queueEndpoints.listFilters())
+                .get("/match/create", matchManager.getMatchEndpoints().createMatch())
                 .start(8080);
     }
 }

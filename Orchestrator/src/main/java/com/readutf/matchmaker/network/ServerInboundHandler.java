@@ -23,6 +23,9 @@ public class ServerInboundHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
+
+
+
     }
 
     @Override

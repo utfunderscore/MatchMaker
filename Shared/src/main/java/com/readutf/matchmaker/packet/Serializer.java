@@ -6,9 +6,9 @@ public interface Serializer<T> {
 
     int getPacketId();
 
-    T decode(ByteBuf byteBuf);
-
     ByteBuf encode(T data);
+
+    T decode(ByteBuf byteBuf);
 
     @SuppressWarnings("unchecked")
     default Class<T> getType() {

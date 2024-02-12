@@ -1,8 +1,11 @@
 package com.readutf.matchmaker;
 
 import com.readutf.matchmaker.api.EndpointManager;
+import com.readutf.matchmaker.matches.MatchManager;
 import com.readutf.matchmaker.network.NetworkManager;
+import com.readutf.matchmaker.packet.Packet;
 import com.readutf.matchmaker.packet.PacketManager;
+import com.readutf.matchmaker.packet.Serializer;
 import com.readutf.matchmaker.packet.serializers.ServerHeartbeatSerializer;
 import com.readutf.matchmaker.packet.serializers.ServerRegisterSerializer;
 import com.readutf.matchmaker.packet.serializers.ServerUnregisterSerializer;
@@ -11,9 +14,12 @@ import com.readutf.matchmaker.server.ServerManager;
 import com.readutf.matchmaker.server.socket.ServerUpdateManager;
 import io.netty.channel.Channel;
 import lombok.Getter;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Timer;
 import java.util.concurrent.Executors;
 
@@ -27,6 +33,7 @@ public class ErosServer {
     private final ServerManager serverManager;
     private final EndpointManager endpointManager;
     private final ServerUpdateManager serverUpdateManager;
+    private final MatchManager matchManager;
     private final QueueManager queueManager;
     private final Timer timer;
     private final Channel channel;
@@ -41,19 +48,27 @@ public class ErosServer {
         this.networkManager = new NetworkManager(Executors.newCachedThreadPool(), packetManager);
         this.serverUpdateManager = new ServerUpdateManager(timer);
         this.queueManager = new QueueManager();
-        this.endpointManager = new EndpointManager(queueManager, serverUpdateManager);
         this.channel = networkManager.startConnection(address, port);
         logger.info("Orchestrator started on " + address + ":" + port);
         this.serverManager = new ServerManager(serverUpdateManager, packetManager);
+        this.matchManager = new MatchManager(packetManager, serverManager);
+        this.endpointManager = new EndpointManager(queueManager, serverUpdateManager, matchManager);
     }
 
     public PacketManager setupPacketManager() {
         PacketManager packetManager = new PacketManager();
 
         //register listeners and packets
-        packetManager.registerPacketEncoder(new ServerRegisterSerializer());
-        packetManager.registerPacketEncoder(new ServerHeartbeatSerializer());
-        packetManager.registerPacketEncoder(new ServerUnregisterSerializer());
+        for (Class<? extends Serializer> aClass : new Reflections("com.readutf.matchmaker").getSubTypesOf(Serializer.class)) {
+            try {
+                Constructor<? extends Serializer> constructor = aClass.getConstructor();
+                Serializer<Packet> serializer = (Serializer<Packet>) constructor.newInstance();
+                packetManager.registerPacketEncoder(serializer);
+                logger.info("Registered serializer: " + aClass.getSimpleName());
+            } catch (Exception e) {
+                logger.warn("Failed to register serializer: " + aClass.getSimpleName() + " - " + e.getMessage());
+            }
+        }
 
         return packetManager;
     }
