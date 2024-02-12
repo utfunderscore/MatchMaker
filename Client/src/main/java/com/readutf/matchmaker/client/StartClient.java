@@ -22,7 +22,7 @@ public class StartClient {
                 new Server(serverId2, 0, "localhost", "hub", 4254, System.currentTimeMillis(), new HashMap<>()),
                 new Server(serverId3, 0, "localhost", "hub", 4254, System.currentTimeMillis(), new HashMap<>())
         );
-        new ErosClient(() -> servers.stream().peek(server -> server.setPlayerCount(ThreadLocalRandom.current().nextInt(0, 5))).toList());
+        new ErosClient(() -> servers.stream().peek(server -> server.setActiveGames(ThreadLocalRandom.current().nextInt(0, 5))).toList());
 
     }
 }

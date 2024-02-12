@@ -26,7 +26,8 @@ public class Server implements Serializable {
     private static Logger logger = LoggerFactory.getLogger(Server.class);
 
     private UUID id;
-    private int playerCount;
+    private int activeGames;
+    private int maxGames;
     private String address, category;
     private int port;
     private long lastHeartbeat;
@@ -62,11 +63,28 @@ public class Server implements Serializable {
 
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Server server = (Server) object;
+        return activeGames == server.activeGames && maxGames == server.maxGames && port == server.port
+                && lastHeartbeat == server.lastHeartbeat && Objects.equals(id, server.id)
+                && Objects.equals(address, server.address) && Objects.equals(category, server.category)
+                && Objects.equals(attributes, server.attributes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, activeGames, maxGames, address, category, port, lastHeartbeat, attributes);
+    }
+
     public static void encodeServer(Server server, ByteBuf byteBuf) {
         EasyByteWriter easyByteWriter = new EasyByteWriter(byteBuf);
 
         easyByteWriter.writeUUID(server.getId());
-        easyByteWriter.writeInt(server.getPlayerCount());
+        easyByteWriter.writeInt(server.getActiveGames());
+        easyByteWriter.writeInt(server.getMaxGames());
         easyByteWriter.writeString(server.getAddress());
         easyByteWriter.writeString(server.getCategory());
         easyByteWriter.writeInt(server.getPort());
@@ -85,7 +103,8 @@ public class Server implements Serializable {
         EasyByteReader easyByteReader = new EasyByteReader(byteBuf);
 
         UUID serverId = easyByteReader.readUUID();
-        int playerCount = byteBuf.readInt();
+        int activeGames = byteBuf.readInt();
+        int maxGames = byteBuf.readInt();
         String address = easyByteReader.readString();
         String category = easyByteReader.readString();
         int port = byteBuf.readInt();
@@ -107,7 +126,8 @@ public class Server implements Serializable {
 
         return new Server(
                 serverId,
-                playerCount,
+                activeGames,
+                maxGames,
                 address,
                 category,
                 port,

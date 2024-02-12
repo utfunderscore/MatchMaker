@@ -3,7 +3,6 @@ package com.readutf.matchmaker.server;
 import io.netty.channel.Channel;
 import lombok.Getter;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -13,12 +12,12 @@ public class RegisteredServer extends Server {
     private transient final Channel channel;
 
     public RegisteredServer(Channel channel, Server server) {
-        this(server.getId(), server.getPlayerCount(), server.getAddress(), server.getCategory(),
+        this(server.getId(), server.getActiveGames(), server.getMaxGames(), server.getAddress(), server.getCategory(),
                 server.getPort(), server.getLastHeartbeat(), server.getAttributes(), channel);
     }
 
-    public RegisteredServer(UUID id, int playerCount, String address, String category, int port, long lastHeartbeat, Map<String, ServerAttribute> attributes, Channel channel) {
-        super(id, playerCount, address, category, port, lastHeartbeat, attributes);
+    public RegisteredServer(UUID id, int activeGames, int maxGames, String address, String category, int port, long lastHeartbeat, Map<String, ServerAttribute> attributes, Channel channel) {
+        super(id, activeGames, maxGames, address, category, port, lastHeartbeat, attributes);
         this.channel = channel;
     }
 
@@ -27,8 +26,8 @@ public class RegisteredServer extends Server {
     }
 
     public boolean handleHeartbeat(ServerHeartbeat heartbeat) {
-        if(getPlayerCount() != heartbeat.getPlayerCount()) {
-            setPlayerCount(heartbeat.getPlayerCount());
+        if(getActiveGames() != heartbeat.getPlayerCount()) {
+            setActiveGames(heartbeat.getPlayerCount());
             setLastHeartbeat(System.currentTimeMillis());
             return true;
         }

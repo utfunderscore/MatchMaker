@@ -35,7 +35,7 @@ public class HeartbeatTask extends TimerTask {
             if (!previousServers.contains(server)) {
                 created.add(server);
             } else {
-                existing.add(new ServerHeartbeat(server.getId(), server.getPlayerCount()));
+                existing.add(new ServerHeartbeat(server.getId(), server.getActiveGames()));
             }
         }
 
