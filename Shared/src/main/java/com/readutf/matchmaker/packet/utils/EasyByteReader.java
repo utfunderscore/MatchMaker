@@ -15,7 +15,6 @@ public class EasyByteReader {
 
     public String readString() {
         int i = in.readInt();
-        System.out.println("Reading string of length " + i);
         byte[] bytes = new byte[i];
         in.readBytes(bytes);
         return new String(bytes);

@@ -30,7 +30,6 @@ public class ServerUpdateManager extends TimerTask {
         updated.clear();
 
         latest.forEach((s, servers) -> {
-            System.out.println("Sending " + servers.size() + " servers to " + s + " category listeners.");
 
             List<WsContext> contexts = categoryToSockets.getOrDefault(s, new ArrayList<>());
             contexts.addAll(categoryToSockets.getOrDefault("*", new ArrayList<>()));

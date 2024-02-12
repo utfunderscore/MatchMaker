@@ -118,7 +118,6 @@ public class PacketManager {
     public <T extends Packet> void registerPacketEncoder(Serializer<T> serializer) {
         Class<T> type = serializer.getType();
         int packetId = serializer.getPacketId();
-        System.out.println("serializer type: " + type);
 
         packetIdToSerializer.put(packetId, serializer);
         packetTypeId.put(type, packetId);

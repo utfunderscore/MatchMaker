@@ -8,12 +8,16 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 public class NetworkManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(NetworkManager.class);
 
     private final PacketManager packetManager;
     private final ExecutorService service;
@@ -53,7 +57,7 @@ public class NetworkManager {
                 try {
                     ChannelFuture f = b.bind(address, port).sync();
 
-                    System.out.println("Orchestrator started on " + address + ":" + port);
+                    logger.info("Orchestrator started on " + address + ":" + port);
                     channelFuture.complete(f.channel());
 
                     f.channel().closeFuture().sync();

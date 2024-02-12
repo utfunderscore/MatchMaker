@@ -27,7 +27,6 @@ public class ServerInboundHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        System.out.println("Channel inactive: " + ctx.channel().id().asShortText());
         packetManager.handlePacket(ctx, new ChannelClosePacket());
     }
 

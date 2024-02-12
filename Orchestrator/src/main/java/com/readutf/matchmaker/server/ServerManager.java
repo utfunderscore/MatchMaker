@@ -71,7 +71,6 @@ public class ServerManager {
         }
 
         if (server.handleHeartbeat(heartbeat)) {
-            System.out.println("Notifying change");
             serverUpdateManager.notifyChange(server);
         }
     }

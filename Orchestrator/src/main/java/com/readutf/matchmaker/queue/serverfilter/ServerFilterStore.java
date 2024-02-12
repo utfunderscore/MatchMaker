@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileReader;
@@ -13,14 +15,15 @@ import java.util.Map;
 
 public class ServerFilterStore {
 
-    private @Getter static Gson gson = new Gson();
+    private final static Gson gson = new Gson();
+    private static final Logger logger = LoggerFactory.getLogger(ServerFilterStore.class);
 
     private final File filtersFile;
 
     @SneakyThrows
     public ServerFilterStore(File baseDir) {
         this.filtersFile = new File(baseDir, "filters.json");
-        if(!filtersFile.exists() && filtersFile.createNewFile()) System.out.println("filters file created");
+        if(!filtersFile.exists() && filtersFile.createNewFile()) logger.info("filters file created");
     }
 
     @SneakyThrows
