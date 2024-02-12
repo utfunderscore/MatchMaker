@@ -2,7 +2,7 @@ package com.readutf.matchmaker.queue;
 
 import com.readutf.matchmaker.queue.serverfilter.InbuiltFilters;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterCreator;
-import com.readutf.matchmaker.server.serverfilter.ServerFilterData;
+import com.readutf.matchmaker.queue.serverfilter.ServerFilterData;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterStore;
 import com.readutf.matchmaker.server.Server;
 
@@ -56,6 +56,10 @@ public class QueueManager {
 
     public Map<String, MatchMaker> getMatchMakers() {
         return Collections.unmodifiableMap(matchMakers);
+    }
+
+    public Map<String, ServerFilterData> getServerFilters() {
+        return Collections.unmodifiableMap(serverFilters);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.readutf.matchmaker.server.serverfilter;
+package com.readutf.matchmaker.queue.serverfilter;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

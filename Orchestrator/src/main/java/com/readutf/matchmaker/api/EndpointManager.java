@@ -17,6 +17,7 @@ public class EndpointManager {
                 .ws("/serverinfo/{category}", ws -> ws.onConnect(new ServerUpdateSocket(serverUpdateManager)))
                 .get("/queue/list", queueEndpoints.getQueues())
                 .put("/queue/filter", queueEndpoints.createFilter())
+                .get("/queue/filters", queueEndpoints.listFilters())
                 .start(8080);
     }
 }

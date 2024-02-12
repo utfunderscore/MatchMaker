@@ -3,7 +3,7 @@ package com.readutf.matchmaker.queue.api;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.readutf.matchmaker.queue.QueueManager;
-import com.readutf.matchmaker.server.serverfilter.ServerFilterData;
+import com.readutf.matchmaker.queue.serverfilter.ServerFilterData;
 import io.javalin.http.Handler;
 
 public class QueueEndpoints {
@@ -26,6 +26,10 @@ public class QueueEndpoints {
             ServerFilterData serverFilterData = gson.fromJson(filterJson, new TypeToken<ServerFilterData>(){}.getType());
             ctx.json(queueManager.registerFilter(serverFilterData));
         };
+    }
+
+    public Handler listFilters() {
+        return ctx -> ctx.json(queueManager.getServerFilters());
     }
 
 }

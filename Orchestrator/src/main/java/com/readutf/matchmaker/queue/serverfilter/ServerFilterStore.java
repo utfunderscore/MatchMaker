@@ -2,7 +2,6 @@ package com.readutf.matchmaker.queue.serverfilter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.readutf.matchmaker.server.serverfilter.ServerFilterData;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
@@ -21,7 +20,6 @@ public class ServerFilterStore {
     @SneakyThrows
     public ServerFilterStore(File baseDir) {
         this.filtersFile = new File(baseDir, "filters.json");
-        System.out.println(this.filtersFile.getAbsolutePath());
         if(!filtersFile.exists() && filtersFile.createNewFile()) System.out.println("filters file created");
     }
 
