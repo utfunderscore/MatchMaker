@@ -43,6 +43,11 @@ public class EasyByteWriter {
         return this;
     }
 
+    public EasyByteWriter writeBoolean(boolean b) {
+        byteBuf.writeBoolean(b);
+        return this;
+    }
+
     public EasyByteWriter writeString(String s) {
         byteBuf.writeInt(s.length());
         write(s.getBytes());

@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":Shared"))
 
     implementation("org.jetbrains:annotations:24.0.0")
+    implementation("org.reflections:reflections:0.10.2")
 
     //lombok
     compileOnly ("org.projectlombok:lombok:1.18.30")
