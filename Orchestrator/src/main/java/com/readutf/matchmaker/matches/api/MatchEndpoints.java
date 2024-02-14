@@ -2,7 +2,7 @@ package com.readutf.matchmaker.matches.api;
 
 import com.readutf.matchmaker.match.MatchResponse;
 import com.readutf.matchmaker.matches.MatchManager;
-import io.javalin.http.Context;
+import com.readutf.matchmaker.matches.MatchRequestResult;
 import io.javalin.http.Handler;
 import lombok.RequiredArgsConstructor;
 
@@ -19,16 +19,8 @@ public class MatchEndpoints {
         return context -> {
             long start = System.currentTimeMillis();
 
-            CompletableFuture.allOf(
-                    IntStream.range(0, 500).mapToObj(i -> matchManager.requestMatch("test", List.of())).toArray(CompletableFuture[]::new)
-            ).get();
-
-            long end = System.currentTimeMillis();
-
-            long duration = end - start;
-            System.out.println("took: " + duration + "ms");
-
-            context.json(duration);
+            CompletableFuture<MatchRequestResult> responses = matchManager.requestMatch("test", List.of(), 5);
+            context.json(responses.join());
         };
     }
 

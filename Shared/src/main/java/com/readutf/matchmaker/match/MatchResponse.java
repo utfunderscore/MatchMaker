@@ -17,6 +17,15 @@ public class MatchResponse {
         this.failureReason = failureReason;
     }
 
+    @Override
+    public String toString() {
+        return "MatchResponse{" +
+                "requestId=" + requestId +
+                ", successful=" + successful +
+                ", failureReason='" + failureReason + '\'' +
+                '}';
+    }
+
     public static MatchResponse success(UUID requestId) {
         return new MatchResponse(requestId, true, null);
     }

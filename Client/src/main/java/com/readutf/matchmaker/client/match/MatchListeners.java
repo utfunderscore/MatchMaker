@@ -9,12 +9,22 @@ import io.netty.channel.Channel;
 
 public class MatchListeners {
 
+    int i = 0;
+
     @PacketHandler
     public void onMatchRequest(Channel channel, MatchRequestPacket packet) {
 
         MatchRequest matchRequest = packet.getMatchRequest();
 
-        channel.writeAndFlush(new MatchResponsePacket(MatchResponse.success(matchRequest.getRequestId())));
+        i++;
+
+        if(i % 3 == 0) {
+            channel.writeAndFlush(new MatchResponsePacket(MatchResponse.success(matchRequest.getRequestId())));
+        } else {
+            channel.writeAndFlush(new MatchResponsePacket(MatchResponse.failure(matchRequest.getRequestId(), "Testing failure")));
+        }
+
+
     }
 
 }
