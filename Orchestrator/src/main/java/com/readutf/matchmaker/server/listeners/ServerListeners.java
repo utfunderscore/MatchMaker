@@ -6,7 +6,6 @@ import com.readutf.matchmaker.packet.packets.ServerHeartbeatPacket;
 import com.readutf.matchmaker.packet.packets.ServerRegisterPacket;
 import com.readutf.matchmaker.packet.packets.ServerUnregisterPacket;
 import com.readutf.matchmaker.server.RegisteredServer;
-import com.readutf.matchmaker.server.Server;
 import com.readutf.matchmaker.server.ServerHeartbeat;
 import com.readutf.matchmaker.server.ServerManager;
 import io.netty.channel.Channel;
@@ -23,28 +22,22 @@ public class ServerListeners {
 
     @PacketHandler
     public void onServerRegister(Channel channel, ServerRegisterPacket packet) {
-        for (Server availableServer : packet.getAvailableServers()) {
-            serverManager.registerServer(channel, availableServer);
-        }
+
+        serverManager.registerServer(channel, packet.getServer());
+
     }
 
     @PacketHandler
     public void onServerHeartbeat(ServerHeartbeatPacket heartbeatPacket) {
-        List<ServerHeartbeat> serverHeartbeats = heartbeatPacket.getServerHeartbeats();
+        ServerHeartbeat serverHeartbeat = heartbeatPacket.getServerHeartbeat();
 
-        for (ServerHeartbeat serverHeartbeat : serverHeartbeats) {
-            serverManager.handleHeartbeat(serverHeartbeat.getServerId(), serverHeartbeat);
-        }
-
+        serverManager.handleHeartbeat(serverHeartbeat.getServerId(), serverHeartbeat);
     }
 
     @PacketHandler
     public void onServerUnregister(ServerUnregisterPacket packet) {
 
-        List<UUID> serverIds = packet.getServerIds();
-        for (UUID serverId : serverIds) {
-            serverManager.unregisterServer(serverId);
-        }
+        serverManager.unregisterServer(packet.getServerId());
 
     }
 

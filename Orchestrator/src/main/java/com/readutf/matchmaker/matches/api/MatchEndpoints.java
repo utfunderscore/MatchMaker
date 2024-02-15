@@ -1,26 +1,34 @@
 package com.readutf.matchmaker.matches.api;
 
-import com.readutf.matchmaker.match.MatchResponse;
+import com.google.gson.reflect.TypeToken;
 import com.readutf.matchmaker.matches.MatchManager;
 import com.readutf.matchmaker.matches.MatchRequestResult;
+import com.readutf.matchmaker.server.ServerManager;
+import com.readutf.matchmaker.utils.JavalinUtils;
 import io.javalin.http.Handler;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.IntStream;
 
-@RequiredArgsConstructor
 public class MatchEndpoints {
 
     private final MatchManager matchManager;
 
+    public MatchEndpoints(MatchManager matchManager) {
+        this.matchManager = matchManager;
+    }
+
     public Handler createMatch() {
         return context -> {
-            long start = System.currentTimeMillis();
+            String queueId = context.queryParam("queueId");
+            List<List<UUID>> teams = JavalinUtils.queryParamFromJson(context, "teams", new TypeToken<>() {});
+            int maxAttempts = context.queryParamAsClass("maxAttempts", Integer.class).get();
 
-            CompletableFuture<MatchRequestResult> responses = matchManager.requestMatch("test", List.of(), 5);
-            context.json(responses.join());
+            CompletableFuture<MatchRequestResult> matchFuture = matchManager.requestMatch(queueId, teams, maxAttempts);
+            MatchRequestResult join = matchFuture.join();
+
+            context.json(join);
         };
     }
 

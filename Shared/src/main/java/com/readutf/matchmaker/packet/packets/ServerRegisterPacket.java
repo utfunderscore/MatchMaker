@@ -15,18 +15,12 @@ import java.util.Objects;
 @Getter @AllArgsConstructor
 public class ServerRegisterPacket extends Packet {
 
-    private List<Server> availableServers;
+    private Server server;
 
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        ServerRegisterPacket that = (ServerRegisterPacket) object;
-        return Objects.equals(availableServers, that.availableServers);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(availableServers);
+        if (!(object instanceof ServerRegisterPacket that)) return false;
+        return Objects.equals(server, that.server);
     }
 }

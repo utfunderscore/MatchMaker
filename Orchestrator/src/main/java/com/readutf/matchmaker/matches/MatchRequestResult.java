@@ -2,21 +2,22 @@ package com.readutf.matchmaker.matches;
 
 import com.readutf.matchmaker.match.MatchRequest;
 import com.readutf.matchmaker.match.MatchResponse;
-import lombok.AllArgsConstructor;
+import com.readutf.matchmaker.server.Server;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
+@ToString
 public class MatchRequestResult {
 
-    private final @Nullable UUID serverId;
+    private final @Nullable Server server;
     private final @Nullable MatchRequest matchRequest;
     private final List<MatchResponse> responses;
 
-    public MatchRequestResult(@Nullable UUID serverId, @Nullable MatchRequest matchRequest, @NotNull List<MatchResponse> responses) {
-        this.serverId = serverId;
+    public MatchRequestResult(@Nullable Server server, @Nullable MatchRequest matchRequest, @NotNull List<MatchResponse> responses) {
+        this.server = server;
         this.matchRequest = matchRequest;
         this.responses = responses;
     }
@@ -26,7 +27,7 @@ public class MatchRequestResult {
     }
 
     public boolean isFailure() {
-        return serverId == null || matchRequest == null;
+        return server == null || matchRequest == null;
     }
 
 }

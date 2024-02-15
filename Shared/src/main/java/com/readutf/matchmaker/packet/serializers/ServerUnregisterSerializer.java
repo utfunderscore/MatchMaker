@@ -2,6 +2,8 @@ package com.readutf.matchmaker.packet.serializers;
 
 import com.readutf.matchmaker.packet.Serializer;
 import com.readutf.matchmaker.packet.packets.ServerUnregisterPacket;
+import com.readutf.matchmaker.packet.utils.EasyByteReader;
+import com.readutf.matchmaker.packet.utils.EasyByteWriter;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -18,13 +20,10 @@ public class ServerUnregisterSerializer implements Serializer<ServerUnregisterPa
 
     @Override
     public ByteBuf encode(ServerUnregisterPacket data) {
-        ByteBuf buffer = Unpooled.buffer((data.getServerIds().size() * 16) + 4);
+        ByteBuf buffer = Unpooled.buffer();
 
-        buffer.writeInt(data.getServerIds().size());
-        for (UUID serverId : data.getServerIds()) {
-            buffer.writeLong(serverId.getMostSignificantBits());
-            buffer.writeLong(serverId.getLeastSignificantBits());
-        }
+        new EasyByteWriter(buffer)
+                .writeUUID(data.getServerId());
 
         return buffer;
     }
@@ -32,14 +31,8 @@ public class ServerUnregisterSerializer implements Serializer<ServerUnregisterPa
     @Override
     public ServerUnregisterPacket decode(ByteBuf byteBuf) {
 
-        List<UUID> ids = new ArrayList<>();
-        int servers = byteBuf.readInt();
-        for (int i = 0; i < servers; i++) {
-            long most = byteBuf.readLong();
-            long least = byteBuf.readLong();
-            ids.add(new UUID(most, least));
-        }
+        UUID uuid = new EasyByteReader(byteBuf).readUUID();
 
-        return new ServerUnregisterPacket(ids);
+        return new ServerUnregisterPacket(uuid);
     }
 }

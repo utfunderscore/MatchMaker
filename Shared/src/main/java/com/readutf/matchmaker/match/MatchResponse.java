@@ -7,12 +7,13 @@ import java.util.UUID;
 @Getter
 public class MatchResponse {
 
-    private UUID requestId;
+    private UUID requestId, matchId;
     private boolean successful;
     private String failureReason;
 
-    public MatchResponse(UUID requestId, boolean successful, String failureReason) {
+    private MatchResponse(UUID requestId, UUID matchId, boolean successful, String failureReason) {
         this.requestId = requestId;
+        this.matchId = matchId;
         this.successful = successful;
         this.failureReason = failureReason;
     }
@@ -26,12 +27,12 @@ public class MatchResponse {
                 '}';
     }
 
-    public static MatchResponse success(UUID requestId) {
-        return new MatchResponse(requestId, true, null);
+    public static MatchResponse success(UUID requestId, UUID matchId) {
+        return new MatchResponse(requestId, matchId, true, null);
     }
 
     public static MatchResponse failure(UUID requestId, String reason) {
-        return new MatchResponse(requestId, false, reason);
+        return new MatchResponse(requestId, null, false, reason);
     }
 
 }

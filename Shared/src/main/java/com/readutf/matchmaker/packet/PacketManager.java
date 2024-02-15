@@ -2,6 +2,7 @@ package com.readutf.matchmaker.packet;
 
 import com.readutf.matchmaker.packet.annotations.PacketHandler;
 import com.readutf.matchmaker.packet.annotations.PacketListener;
+import com.readutf.matchmaker.packet.packets.ServerHeartbeatPacket;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Setter;
@@ -46,7 +47,9 @@ public class PacketManager {
 
     public void handlePacket(ChannelHandlerContext ctx, Packet packet) {
 
-        System.out.println("Handling packet: " + packet.getClass().getSimpleName());
+        if(!(packet instanceof ServerHeartbeatPacket)) {
+            System.out.println("Handling packet: " + packet.getClass().getSimpleName() + " " + packet.toString());
+        }
 
         packetListeners.getOrDefault(packet.getClass(), new ArrayList<>())
                 .forEach(packetListener -> packetListener.handlePacket(ctx, packet));

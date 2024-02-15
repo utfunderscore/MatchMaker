@@ -2,7 +2,7 @@ plugins {
     id("java")
 }
 
-group = "com.readutf.matchmaker"
+group = "com.readutf.matchmaker.democlient"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -10,9 +10,9 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":Client"))
     implementation(project(":Shared"))
 
-    //lombok
     compileOnly ("org.projectlombok:lombok:1.18.30")
     annotationProcessor( "org.projectlombok:lombok:1.18.30")
 
@@ -21,6 +21,9 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+
+
+
 }
 
 tasks.test {

@@ -3,10 +3,11 @@ package com.readutf.matchmaker.client.network;
 import com.readutf.matchmaker.packet.PacketDecoder;
 import com.readutf.matchmaker.packet.PacketEncoder;
 import com.readutf.matchmaker.packet.PacketManager;
-import com.readutf.matchmaker.packet.packets.ServerRegisterPacket;
-import com.readutf.matchmaker.packet.serializers.ServerRegisterSerializer;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -65,6 +66,7 @@ public class NetworkManager {
                 packetManager.setChannel(f.channel());
 
                 f.channel().closeFuture().sync();
+                System.out.println("closed");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } finally {

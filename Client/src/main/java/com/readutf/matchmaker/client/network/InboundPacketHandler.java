@@ -12,6 +12,11 @@ public class InboundPacketHandler extends ChannelInboundHandlerAdapter {
     private final PacketManager packetManager;
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        System.out.println("closed");
+    }
+
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
 
         if(msg instanceof Packet packet) {

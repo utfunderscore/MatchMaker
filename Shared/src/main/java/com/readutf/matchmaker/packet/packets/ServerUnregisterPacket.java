@@ -12,14 +12,10 @@ import java.util.UUID;
 @Getter
 public class ServerUnregisterPacket extends Packet {
 
-    private final List<UUID> serverIds;
-
-    public ServerUnregisterPacket(List<UUID> serverId) {
-        this.serverIds = serverId;
-    }
+    private final UUID serverId;
 
     public ServerUnregisterPacket(UUID serverId) {
-        this.serverIds = List.of(serverId);
+        this.serverId = serverId;
     }
 
 }

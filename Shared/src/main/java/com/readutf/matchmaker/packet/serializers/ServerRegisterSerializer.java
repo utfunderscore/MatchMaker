@@ -17,25 +17,17 @@ public class ServerRegisterSerializer implements Serializer<ServerRegisterPacket
 
     @Override
     public ServerRegisterPacket decode(ByteBuf byteBuf) {
-        ArrayList<Server> servers = new ArrayList<>();
 
-        int length = byteBuf.readShort();
-        for (int i = 0; i < length; i++) {
-            Server server = Server.decodeServer(byteBuf);
-            servers.add(server);
-        }
+        Server server = Server.decodeServer(byteBuf);
 
-        return new ServerRegisterPacket(servers);
+        return new ServerRegisterPacket(server);
     }
 
     @Override
     public ByteBuf encode(ServerRegisterPacket data) {
 
         ByteBuf buffer = Unpooled.buffer(20);
-        buffer.writeShort(data.getAvailableServers().size());
-        for (Server server : data.getAvailableServers()) {
-            Server.encodeServer(server, buffer);
-        }
+        Server.encodeServer(data.getServer(), buffer);
 
         return buffer;
     }

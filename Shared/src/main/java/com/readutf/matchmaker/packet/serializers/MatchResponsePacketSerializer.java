@@ -8,6 +8,8 @@ import com.readutf.matchmaker.packet.utils.EasyByteWriter;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
+import java.util.UUID;
+
 public class MatchResponsePacketSerializer implements Serializer<MatchResponsePacket> {
 
     @Override
@@ -22,9 +24,15 @@ public class MatchResponsePacketSerializer implements Serializer<MatchResponsePa
         MatchResponse response = data.getMatchResponse();
 
         if(response.isSuccessful()) {
-            return byteWriter.writeBoolean(true).writeUUID(response.getRequestId()).getByteBuf();
+            return byteWriter.writeBoolean(true) // success
+                    .writeUUID(response.getRequestId()) // request id
+                    .writeUUID(response.getMatchId()) // match id
+                    .getByteBuf();
         } else {
-            return byteWriter.writeBoolean(false).writeUUID(response.getRequestId()).writeString(response.getFailureReason()).getByteBuf();
+            return byteWriter.writeBoolean(false) // failure
+                    .writeUUID(response.getRequestId()) // request id
+                    .writeString(response.getFailureReason()) // reason
+                    .getByteBuf();
         }
     }
 
@@ -32,9 +40,13 @@ public class MatchResponsePacketSerializer implements Serializer<MatchResponsePa
     public MatchResponsePacket decode(ByteBuf byteBuf) {
         EasyByteReader reader = new EasyByteReader(byteBuf);
         if (byteBuf.readBoolean()) {
-            return new MatchResponsePacket(MatchResponse.success(reader.readUUID()));
+            UUID requestId = reader.readUUID();
+            UUID matchId = reader.readUUID();
+            return new MatchResponsePacket(MatchResponse.success(requestId, matchId));
         } else {
-            return new MatchResponsePacket(MatchResponse.failure(reader.readUUID(), reader.readString()));
+            UUID requestId = reader.readUUID();
+            String reason = reader.readString();
+            return new MatchResponsePacket(MatchResponse.failure(requestId, reason));
         }
     }
 }

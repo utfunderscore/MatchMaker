@@ -16,7 +16,7 @@ import java.util.UUID;
 public class ServerHeartbeat implements Serializable {
 
     private UUID serverId;
-    private int playerCount;
+    private int activeGames;
 
     /**
      * Encodes the heartbeat data into a byte buffer
@@ -26,7 +26,7 @@ public class ServerHeartbeat implements Serializable {
     public void encode(ByteBuf byteBuf) {
         new EasyByteWriter(byteBuf)
                 .writeUUID(serverId)
-                .writeInt(playerCount);
+                .writeInt(activeGames);
     }
 
     /**
@@ -35,14 +35,14 @@ public class ServerHeartbeat implements Serializable {
     @Override
     public void decode(ByteBuf byteBuf) {
         this.serverId = new UUID(byteBuf.readLong(), byteBuf.readLong());
-        this.playerCount = byteBuf.readInt();
+        this.activeGames = byteBuf.readInt();
     }
 
     @Override
     public String toString() {
         return "ServerHeartbeat{" +
                 "serverId=" + serverId +
-                ", playerCount=" + playerCount +
+                ", playerCount=" + activeGames +
                 '}';
     }
 }

@@ -4,11 +4,12 @@ import com.readutf.matchmaker.match.MatchResponse;
 import com.readutf.matchmaker.packet.Packet;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.UUID;
 
 @AllArgsConstructor
-@Getter
+@Getter @ToString
 public class MatchResponsePacket extends Packet {
 
     private final MatchResponse matchResponse;

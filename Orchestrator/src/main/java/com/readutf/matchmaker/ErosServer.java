@@ -52,7 +52,7 @@ public class ErosServer {
         logger.info("Orchestrator started on " + address + ":" + port);
         this.serverManager = new ServerManager(serverUpdateManager, packetManager);
         this.matchManager = new MatchManager(packetManager, serverManager);
-        this.endpointManager = new EndpointManager(queueManager, serverUpdateManager, matchManager);
+        this.endpointManager = new EndpointManager(this);
     }
 
     public PacketManager setupPacketManager() {

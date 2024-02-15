@@ -31,7 +31,7 @@ public class SerializationTests {
         ServerRegisterSerializer serializer = new ServerRegisterSerializer();
 
         Server server = new Server(UUID.randomUUID(), 25, 25, "localhost", "test", 25565, System.currentTimeMillis(), new HashMap<>());
-        ServerRegisterPacket data = new ServerRegisterPacket(List.of(server));
+        ServerRegisterPacket data = new ServerRegisterPacket(server);
 
         ByteBuf encode = serializer.encode(data);
         ServerRegisterPacket decoded = serializer.decode(encode);

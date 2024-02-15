@@ -26,8 +26,8 @@ public class RegisteredServer extends Server {
     }
 
     public boolean handleHeartbeat(ServerHeartbeat heartbeat) {
-        if(getActiveGames() != heartbeat.getPlayerCount()) {
-            setActiveGames(heartbeat.getPlayerCount());
+        if(getActiveGames() != heartbeat.getActiveGames()) {
+            setActiveGames(heartbeat.getActiveGames());
             setLastHeartbeat(System.currentTimeMillis());
             return true;
         }

@@ -1,6 +1,7 @@
 package com.readutf.matchmaker.client;
 
 import com.readutf.matchmaker.client.match.MatchListeners;
+import com.readutf.matchmaker.client.match.MatchRequestHandler;
 import com.readutf.matchmaker.client.network.NetworkManager;
 import com.readutf.matchmaker.client.server.HeartbeatTask;
 import com.readutf.matchmaker.match.MatchRequest;
@@ -9,6 +10,7 @@ import com.readutf.matchmaker.packet.PacketManager;
 import com.readutf.matchmaker.packet.Serializer;
 import com.readutf.matchmaker.server.Server;
 import io.netty.channel.Channel;
+import lombok.Getter;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@Getter
 public class ErosClient {
 
     private static Logger logger = LoggerFactory.getLogger(ErosClient.class);
@@ -27,15 +30,15 @@ public class ErosClient {
     private final PacketManager packetManager;
     private final NetworkManager networkManager;
     private final MatchListeners matchListeners;
-    private final Consumer<MatchRequest> matchRequestConsumer;
+    private final MatchRequestHandler matchRequestHandler;
     private final Channel channel;
 
-    public ErosClient(Supplier<List<Server>> serversSupplier, Consumer<MatchRequest> matchRequestConsumer) {
+    public ErosClient(Supplier<Server> serversSupplier, MatchRequestHandler matchRequestHandler) {
         this.packetManager = setupPacketManager();
         this.networkManager = new NetworkManager(Executors.newCachedThreadPool(), "localhost", 4254, packetManager);
         this.channel = networkManager.startConnection();
-        this.matchListeners = new MatchListeners();
-        this.matchRequestConsumer = matchRequestConsumer;
+        this.matchListeners = new MatchListeners(matchRequestHandler);
+        this.matchRequestHandler = matchRequestHandler;
 
         startHeartbeat(new Timer(), serversSupplier);
         packetManager.registerListeners(matchListeners);
@@ -59,7 +62,7 @@ public class ErosClient {
         return packetManager;
     }
 
-    public void startHeartbeat(Timer timer, Supplier<List<Server>> serverSupplier) {
+    public void startHeartbeat(Timer timer, Supplier<Server> serverSupplier) {
         timer.scheduleAtFixedRate(new HeartbeatTask(packetManager, serverSupplier), 0, 1000);
     }
 

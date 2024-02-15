@@ -28,6 +28,8 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
+TestClientImpl/
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/

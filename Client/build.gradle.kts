@@ -1,4 +1,5 @@
 plugins {
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("java")
 }
 
@@ -12,9 +13,10 @@ repositories {
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    
+    implementation(project(":Shared"))
 
     implementation("io.netty:netty-all:4.1.106.Final")
-    implementation(project(":Shared"))
 
     implementation("org.jetbrains:annotations:24.0.0")
     implementation("org.reflections:reflections:0.10.2")

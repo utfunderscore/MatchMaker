@@ -12,9 +12,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Getter
 public class MatchManager {
@@ -22,7 +20,7 @@ public class MatchManager {
     private final ServerManager serverManager;
     private final MatchEndpoints matchEndpoints;
     private final Map<UUID, CompletableFuture<MatchResponse>> matchRequests;
-    private final ExecutorService executor = Executors.newCachedThreadPool();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public MatchManager(PacketManager packetManager, ServerManager serverManager) {
         this.serverManager = serverManager;
@@ -37,9 +35,9 @@ public class MatchManager {
         Collection<RegisteredServer> servers = serverManager.getServers();
         Optional<RegisteredServer> optimalServer = servers.stream().filter(registeredServer -> registeredServer.getActiveGames() < registeredServer.getMaxGames()).min(Comparator.comparingDouble(value -> value.getActiveGames() / ((double) value.getMaxGames())));
 
-        if(optimalServer.isEmpty()) {
+        if (optimalServer.isEmpty()) {
             return CompletableFuture.completedFuture(new MatchRequestResult(null, null,
-                    List.of(new MatchResponse(requestId, false, "No servers available."))));
+                    List.of(MatchResponse.failure(requestId, "No servers available"))));
         }
 
         RegisteredServer server = optimalServer.get();
@@ -53,11 +51,17 @@ public class MatchManager {
                 MatchRequest matchRequest = new MatchRequest(UUID.randomUUID(), queueId, teams);
                 CompletableFuture<MatchResponse> future = requestMatchFromServer(server, matchRequest);
 
-                MatchResponse response = future.join();
+                MatchResponse response = null;
+                try {
+                    response = future.get(500, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                    response = MatchResponse.failure(requestId, "Failed to get response from server");
+                }
 
                 responses.add(response);
-                if(response.isSuccessful()) {
-                    responsesFuture.complete(new MatchRequestResult(server.getId(), matchRequest, responses));
+                if (response.isSuccessful()) {
+                    server.setActiveGames(server.getActiveGames() + 1);
+                    responsesFuture.complete(new MatchRequestResult(server, matchRequest, responses));
                     return;
                 }
             }

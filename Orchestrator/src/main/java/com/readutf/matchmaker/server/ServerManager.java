@@ -89,6 +89,18 @@ public class ServerManager {
         channelToServers.put(registeredServer.getChannel(), servers);
     }
 
+    public List<String> getActiveGamesDebug() {
+        ArrayList<String> lines = new ArrayList<>();
+
+        for (RegisteredServer server : registeredServers.values()) {
+            lines.add("[" + ("=".repeat(server.getActiveGames())) + (" ").repeat(server.getMaxGames() - server.getActiveGames()) + "] "
+                    + ((server.getActiveGames() / ((double) server.getMaxGames())) * 100) + "% "
+                    + server.getShortId());
+        }
+
+        return lines;
+    }
+
     /**
      * Unregister a server from the manager
      * @param serverId - The id of the server to unregister
