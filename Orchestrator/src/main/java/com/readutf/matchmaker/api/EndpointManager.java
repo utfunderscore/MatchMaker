@@ -23,7 +23,9 @@ public class EndpointManager {
                 .create(config -> {
                     config.jsonMapper(new JavalinGson());
                 })
-                .ws("/serverinfo/{category}", ws -> ws.onConnect(new ServerUpdateSocket(serverUpdateManager)))
+                .ws("/serverinfo/{category}", ws -> {
+                    ws.onConnect(new ServerUpdateSocket(serverUpdateManager));
+                })
                 .get("/queue/list", queueEndpoints.getQueues())
                 .put("/queue/filter", queueEndpoints.createFilter())
                 .get("/queue/filters", queueEndpoints.listFilters())

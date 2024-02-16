@@ -5,20 +5,21 @@ import com.readutf.matchmaker.queue.serverfilter.ServerFilterCreator;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterData;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterStore;
 import com.readutf.matchmaker.server.Server;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class QueueManager {
 
     private final ServerFilterStore serverFilterStore;
+
     private final Map<String, MatchMaker> matchMakers;
     private final Map<String, ServerFilterCreator> serverFilterCreators;
     private final Map<String, ServerFilterData> serverFilters;
-    private final Map<String, Queue> queues = new HashMap<>();
+
+    private final Map<UUID, Queue> queues = new HashMap<>();
 
     public QueueManager() {
         this.serverFilterStore = new ServerFilterStore(new File(System.getProperty("user.dir")));
@@ -27,6 +28,14 @@ public class QueueManager {
                 "category", InbuiltFilters.getCategoryFilter()
         );
         this.serverFilters = serverFilterStore.loadAll();
+    }
+
+    public Queue createQueue(String queueName, String matchMakerId, String filterId) throws Exception {
+        if(!matchMakers.containsKey(matchMakerId)) throw new Exception("MatchMaker does not exist");
+
+        Queue queue = new Queue(queueName, matchMakerId, filterId);
+        queues.put(queue.getQueueId(), queue);
+        return queue;
     }
 
     public void registerMatchMaker(String name, MatchMaker matchMaker) {
@@ -54,12 +63,15 @@ public class QueueManager {
         }
     }
 
-    public Map<String, MatchMaker> getMatchMakers() {
-        return Collections.unmodifiableMap(matchMakers);
+    public Collection<Queue> getQueues() {
+        return queues.values();
     }
 
     public Map<String, ServerFilterData> getServerFilters() {
         return Collections.unmodifiableMap(serverFilters);
     }
 
+    public @Nullable MatchMaker getMatchMaker(String matchMakerId) {
+        return matchMakers.get(matchMakerId);
+    }
 }

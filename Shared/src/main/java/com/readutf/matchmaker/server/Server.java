@@ -1,6 +1,7 @@
 package com.readutf.matchmaker.server;
 
-import com.readutf.matchmaker.packet.Serializer;
+import com.readutf.matchmaker.attribute.Attributes;
+import com.readutf.matchmaker.match.MatchData;
 import com.readutf.matchmaker.packet.utils.EasyByteReader;
 import com.readutf.matchmaker.packet.utils.EasyByteWriter;
 import io.netty.buffer.ByteBuf;
@@ -19,48 +20,43 @@ import java.util.*;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 @AllArgsConstructor
-public class Server implements Serializable {
+public class Server implements Serializable, Attributes {
 
     private static Logger logger = LoggerFactory.getLogger(Server.class);
 
-    private UUID id;
+    private final UUID id;
+    private final String address;
+    private final int port;
+    private final String category;
+
+    private List<MatchData> matches;
+    private Map<String, ServerAttribute> attributes;
+    private long lastHeartbeat;
     private int activeGames;
     private int maxGames;
-    private String address, category;
-    private int port;
-    private long lastHeartbeat;
-    private Map<String, ServerAttribute> attributes;
+
+    public boolean isUnreachable() {
+        return System.currentTimeMillis() - getLastHeartbeat() > 10000;
+    }
+
+    public boolean handleHeartbeat(ServerHeartbeat heartbeat) {
+
+        boolean changed = !heartbeat.getMatches().equals(getMatches()) || heartbeat.getActiveGames() != getActiveGames();
+
+        setLastHeartbeat(System.currentTimeMillis());
+        setActiveGames(heartbeat.getActiveGames());
+        setMatches(heartbeat.getMatches());
+
+        return changed;
+    }
+
+    public double getLoadPercentage() {
+        return (double) activeGames / maxGames;
+    }
 
     public String getShortId() {
         return "{s:" + id.toString().substring(0, 8) + "}";
-    }
-
-    public <T> void addAttribute(String key, T attributeData, Serializer<T> serializer) {
-        ByteBuf encode = serializer.encode(attributeData);
-        byte[] bytes = new byte[encode.readableBytes()];
-        encode.readBytes(bytes);
-        attributes.put(key, new ServerAttribute(Base64.getEncoder().encodeToString(bytes), serializer.getType()));
-    }
-
-    public boolean hasAttribute(String key) {
-        return attributes.containsKey(key);
-    }
-
-    public <T> T getAttribute(String key, Serializer<T> serializer) {
-        ServerAttribute serverAttribute = attributes.get(key);
-        if (serverAttribute == null) return null;
-
-
-        if (serverAttribute.getType().equals(serializer.getType())) {
-            byte[] bytes = Base64.getDecoder().decode(serverAttribute.getEncoded());
-            ByteBuf byteBuf = serializer.encode(serializer.getType().cast(bytes));
-            return serializer.decode(byteBuf);
-        } else {
-            throw new RuntimeException("Attribute type does not match");
-        }
-
     }
 
     @Override
@@ -82,20 +78,18 @@ public class Server implements Serializable {
     public static void encodeServer(Server server, ByteBuf byteBuf) {
         EasyByteWriter easyByteWriter = new EasyByteWriter(byteBuf);
 
-        easyByteWriter.writeUUID(server.getId());
-        easyByteWriter.writeInt(server.getActiveGames());
-        easyByteWriter.writeInt(server.getMaxGames());
-        easyByteWriter.writeString(server.getAddress());
-        easyByteWriter.writeString(server.getCategory());
-        easyByteWriter.writeInt(server.getPort());
-        easyByteWriter.writeLong(server.getLastHeartbeat());
-
-        easyByteWriter.writeInt(server.getAttributes().size());
-        server.getAttributes().forEach((key, attribute) -> {
-            easyByteWriter.writeString(key);
-            easyByteWriter.writeString(attribute.getEncoded());
-            easyByteWriter.writeString(attribute.getType().getName());
-        });
+        easyByteWriter.writeUUID(server.getId())
+                .writeInt(server.getActiveGames())
+                .writeInt(server.getMaxGames())
+                .writeString(server.getAddress())
+                .writeString(server.getCategory())
+                .writeInt(server.getPort())
+                .writeLong(server.getLastHeartbeat())
+                .peek(byteBuffer -> server.serializeAttributes(byteBuf))
+                .peek(byteBuffer -> {
+                    byteBuffer.writeInt(server.getMatches().size());
+                    server.getMatches().forEach(server1 -> MatchData.encode(byteBuffer, server1));
+                });
 
     }
 
@@ -110,29 +104,24 @@ public class Server implements Serializable {
         int port = byteBuf.readInt();
         long lastHeartbeat = byteBuf.readLong();
 
-        Map<String, ServerAttribute> attributes = new HashMap<>();
-        int attributeCount = byteBuf.readInt();
-        for (int i = 0; i < attributeCount; i++) {
-            String key = easyByteReader.readString();
-            String encoded = easyByteReader.readString();
-            String type = easyByteReader.readString();
-            try {
-                attributes.put(key, new ServerAttribute(encoded, Class.forName(type)));
-            } catch (ClassNotFoundException e) {
-                logger.error("Could not find class for attribute type: " + type);
-                continue;
-            }
+        Map<String, ServerAttribute> attributes = Attributes.deserializeAttributes(byteBuf);
+
+        int matches = byteBuf.readInt();
+        List<MatchData> matchData = new ArrayList<>();
+        for (int i = 0; i < matches; i++) {
+            matchData.add(MatchData.decode(byteBuf));
         }
 
         return new Server(
                 serverId,
-                activeGames,
-                maxGames,
                 address,
-                category,
                 port,
+                category,
+                matchData,
+                attributes,
                 lastHeartbeat,
-                attributes
+                activeGames,
+                maxGames
         );
     }
 

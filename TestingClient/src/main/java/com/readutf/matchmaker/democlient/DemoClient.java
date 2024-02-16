@@ -5,6 +5,7 @@ import com.readutf.matchmaker.democlient.game.GameManager;
 import com.readutf.matchmaker.democlient.game.GameRequestHandler;
 import com.readutf.matchmaker.server.Server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -17,9 +18,17 @@ public class DemoClient {
     public DemoClient(int maxGames) {
 
         this.gameManager = new GameManager(maxGames);
-        this.erosClient = new ErosClient(() -> new Server(serverId, gameManager.getActiveGames().size(), maxGames, "",
-                "demo_server", 1000, System.currentTimeMillis(), new HashMap<>()),
-                new GameRequestHandler(gameManager));
+        this.erosClient = new ErosClient(() -> new Server(
+                serverId,
+                "localhost",
+                8080,
+                "game",
+                gameManager.getMatchData(),
+                new HashMap<>(),
+                System.currentTimeMillis(),
+                0,
+                maxGames
+        ), new GameRequestHandler(gameManager));
     }
 }
 

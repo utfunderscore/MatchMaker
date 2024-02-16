@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class EasyByteWriter {
 
@@ -16,6 +17,7 @@ public class EasyByteWriter {
     public void write(byte[] bytes) {
         byteBuf.writeBytes(bytes);
     }
+
     /**
      * Writes a UUID to the buffer
      * Size of 16 bytes
@@ -26,7 +28,6 @@ public class EasyByteWriter {
         writeLong(uuid.getLeastSignificantBits());
         return this;
     }
-
     /**
      * Writes an integer to the buffer
      * Size of 4 bytes
@@ -45,6 +46,11 @@ public class EasyByteWriter {
 
     public EasyByteWriter writeBoolean(boolean b) {
         byteBuf.writeBoolean(b);
+        return this;
+    }
+
+    public EasyByteWriter peek(Consumer<ByteBuf> internalBuf) {
+        internalBuf.accept(byteBuf);
         return this;
     }
 

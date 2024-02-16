@@ -16,6 +16,7 @@ public class ServerUpdateSocket implements WsConnectHandler {
 
         wsConnectContext.send("category: " + category);
         serverUpdateManager.registerCategoryListener(category, wsConnectContext);
+
     }
 
 }

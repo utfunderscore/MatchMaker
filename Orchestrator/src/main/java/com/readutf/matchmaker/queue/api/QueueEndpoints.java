@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.readutf.matchmaker.queue.QueueManager;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterData;
 import io.javalin.http.Handler;
+import io.javalin.websocket.WsConnectHandler;
 
 public class QueueEndpoints {
 
@@ -17,7 +18,7 @@ public class QueueEndpoints {
     }
 
     public Handler getQueues() {
-        return ctx -> ctx.json(queueManager.getMatchMakers());
+        return ctx -> ctx.json(queueManager.getQueues());
     }
 
     public Handler createFilter() {
@@ -30,6 +31,12 @@ public class QueueEndpoints {
 
     public Handler listFilters() {
         return ctx -> ctx.json(queueManager.getServerFilters());
+    }
+
+    public WsConnectHandler queueListener() {
+        return wsConnectContext -> {
+
+        };
     }
 
 }

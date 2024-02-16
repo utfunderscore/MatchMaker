@@ -25,7 +25,7 @@ public class MatchEndpoints {
             List<List<UUID>> teams = JavalinUtils.queryParamFromJson(context, "teams", new TypeToken<>() {});
             int maxAttempts = context.queryParamAsClass("maxAttempts", Integer.class).get();
 
-            CompletableFuture<MatchRequestResult> matchFuture = matchManager.requestMatch(queueId, teams, maxAttempts);
+            CompletableFuture<MatchRequestResult> matchFuture = matchManager.requestMatch(queueId,server -> true, teams, maxAttempts);
             MatchRequestResult join = matchFuture.join();
 
             context.json(join);

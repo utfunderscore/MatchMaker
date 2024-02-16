@@ -23,7 +23,7 @@ public class ServerHeartbeatSerializer implements Serializer<ServerHeartbeatPack
     public ByteBuf encode(ServerHeartbeatPacket data) {
         ByteBuf buffer = Unpooled.buffer();
 
-        data.getServerHeartbeat().encode(buffer);
+        ServerHeartbeat.encode(buffer, data.getServerHeartbeat());
 
         return buffer;
     }
@@ -36,8 +36,7 @@ public class ServerHeartbeatSerializer implements Serializer<ServerHeartbeatPack
     @Override
     public ServerHeartbeatPacket decode(ByteBuf byteBuf) {
 
-        ServerHeartbeat serverHeartbeat = new ServerHeartbeat();
-        serverHeartbeat.decode(byteBuf);
+        ServerHeartbeat serverHeartbeat = ServerHeartbeat.decode(byteBuf);
 
         return new ServerHeartbeatPacket(serverHeartbeat);
 

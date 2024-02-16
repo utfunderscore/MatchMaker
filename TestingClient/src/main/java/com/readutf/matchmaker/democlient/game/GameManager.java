@@ -1,5 +1,6 @@
 package com.readutf.matchmaker.democlient.game;
 
+import com.readutf.matchmaker.match.MatchData;
 import com.readutf.matchmaker.match.MatchResponse;
 
 import java.util.*;
@@ -20,6 +21,10 @@ public class GameManager extends TimerTask {
         return new ArrayList<>(games.values());
     }
 
+    public List<MatchData> getMatchData() {
+        return getActiveGames().stream().map(game -> new MatchData(game.getGameId(), 0, "ACTIVE")).toList();
+    }
+
     public Game startGame() throws Exception {
         UUID gameId = UUID.randomUUID();
         System.out.println("active games: " + games.size() + " max games: " + maxGames);
@@ -27,15 +32,18 @@ public class GameManager extends TimerTask {
             throw new Exception("Max games reached");
         }
 
-        Game game = new Game(gameId, System.currentTimeMillis() + (ThreadLocalRandom.current().nextLong(0, 3) * 1000 * 60));
+        Game game = new Game(gameId, System.currentTimeMillis() + (ThreadLocalRandom.current().nextLong(5, 15) * 1000));
         games.put(gameId, game);
         return game;
     }
 
     @Override
     public void run() {
+        System.out.println(games.size());
+
         HashMap<UUID, Game> games = new HashMap<>(this.games);
         games.forEach((uuid, game) -> {
+            System.out.println("Expires in " + (game.getExpiresAt() - System.currentTimeMillis()) + "ms");
             if (game.getExpiresAt() < System.currentTimeMillis()) {
                 this.games.remove(uuid);
             }

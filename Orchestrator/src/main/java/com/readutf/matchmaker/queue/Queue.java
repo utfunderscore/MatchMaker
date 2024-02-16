@@ -1,33 +1,24 @@
 package com.readutf.matchmaker.queue;
 
-import com.readutf.matchmaker.server.Server;
+import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.UUID;
 import java.util.function.Predicate;
 
+@Getter
 public class Queue {
 
-    private final String name;
-    private final MatchMaker matchMaker;
-    private final Predicate<Server> filter;
+    private final UUID queueId;
+    private final String name, matchMakerId, serverFilterId;
     private final Collection<QueueEntry> inQueue;
 
-    public Queue(String name, MatchMaker matchMaker, Predicate<Server> filter) {
+    public Queue(String name, String matchMakerId, String serverFilterId) {
+        this.queueId = UUID.randomUUID();
         this.name = name;
-        this.matchMaker = matchMaker;
-        this.filter = filter;
+        this.matchMakerId = matchMakerId;
+        this.serverFilterId = serverFilterId;
         this.inQueue = new ArrayDeque<>();
     }
-
-    public void tick() {
-
-        QueueResult queueResult = matchMaker.onIteration(inQueue);
-        if(queueResult == null) return;
-
-        
-
-
-
-    }
-
 }

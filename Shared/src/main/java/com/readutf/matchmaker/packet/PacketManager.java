@@ -2,7 +2,6 @@ package com.readutf.matchmaker.packet;
 
 import com.readutf.matchmaker.packet.annotations.PacketHandler;
 import com.readutf.matchmaker.packet.annotations.PacketListener;
-import com.readutf.matchmaker.packet.packets.ServerHeartbeatPacket;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import lombok.Setter;
@@ -47,9 +46,8 @@ public class PacketManager {
 
     public void handlePacket(ChannelHandlerContext ctx, Packet packet) {
 
-        if(!(packet instanceof ServerHeartbeatPacket)) {
-            System.out.println("Handling packet: " + packet.getClass().getSimpleName() + " " + packet.toString());
-        }
+
+        System.out.println("Handling packet: " + packet.getClass().getSimpleName() + " " + packet.toString());
 
         packetListeners.getOrDefault(packet.getClass(), new ArrayList<>())
                 .forEach(packetListener -> packetListener.handlePacket(ctx, packet));
@@ -72,17 +70,17 @@ public class PacketManager {
 
         Class<?> aClass = object.getClass();
         for (Method method : aClass.getMethods()) {
-            if(!method.isAnnotationPresent(PacketHandler.class)) continue;
+            if (!method.isAnnotationPresent(PacketHandler.class)) continue;
             Class<?>[] parameterTypes = method.getParameterTypes();
 
             Class<? extends Packet> packetType = null;
             for (Class<?> type : parameterTypes) {
-                if(Packet.class.isAssignableFrom(type)) {
+                if (Packet.class.isAssignableFrom(type)) {
                     packetType = type.asSubclass(Packet.class);
                     break;
                 }
             }
-            if(packetType == null) {
+            if (packetType == null) {
                 logger.error("No packet type found for packet handler: " + method.getName());
                 continue;
             }
@@ -93,11 +91,11 @@ public class PacketManager {
                 Object[] parameters = new Object[parameterTypes.length];
                 for (int i = 0; i < parameters.length; i++) {
                     Class<?> type = parameterTypes[i];
-                    if(Packet.class.isAssignableFrom(type)) {
+                    if (Packet.class.isAssignableFrom(type)) {
                         parameters[i] = packet;
-                    } else if(ChannelHandlerContext.class.isAssignableFrom(type)) {
+                    } else if (ChannelHandlerContext.class.isAssignableFrom(type)) {
                         parameters[i] = ctx;
-                    } else if(Channel.class.isAssignableFrom(type)) {
+                    } else if (Channel.class.isAssignableFrom(type)) {
                         parameters[i] = ctx.channel();
                     } else {
                         logger.error("Invalid parameter type for packet handler: " + type.getSimpleName());

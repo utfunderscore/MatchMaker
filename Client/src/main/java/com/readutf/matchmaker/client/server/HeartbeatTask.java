@@ -41,7 +41,7 @@ public class HeartbeatTask extends TimerTask {
             return;
         }
 
-        packetManager.sendPacket(new ServerHeartbeatPacket(new ServerHeartbeat(server.getId(), server.getActiveGames())));
+        packetManager.sendPacket(new ServerHeartbeatPacket(new ServerHeartbeat(server.getId(), server.getActiveGames(), server.getMatches())));
 
     }
 

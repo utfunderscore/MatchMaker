@@ -7,12 +7,14 @@ import com.readutf.matchmaker.matches.packet.MatchResponseListener;
 import com.readutf.matchmaker.packet.PacketManager;
 import com.readutf.matchmaker.packet.packets.MatchRequestPacket;
 import com.readutf.matchmaker.server.RegisteredServer;
+import com.readutf.matchmaker.server.Server;
 import com.readutf.matchmaker.server.ServerManager;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Predicate;
 
 @Getter
 public class MatchManager {
@@ -29,41 +31,29 @@ public class MatchManager {
         packetManager.registerListeners(new MatchResponseListener(this));
     }
 
-    public CompletableFuture<MatchRequestResult> requestMatch(String queueId, List<List<UUID>> teams, int maxAttempts) {
-
+    public CompletableFuture<MatchRequestResult> requestMatch(String queueId, Predicate<Server> filter, List<List<UUID>> teams, int maxAttempts) {
         UUID requestId = UUID.randomUUID();
         Collection<RegisteredServer> servers = serverManager.getServers();
-        Optional<RegisteredServer> optimalServer = servers.stream().filter(registeredServer -> registeredServer.getActiveGames() < registeredServer.getMaxGames()).min(Comparator.comparingDouble(value -> value.getActiveGames() / ((double) value.getMaxGames())));
-
-        if (optimalServer.isEmpty()) {
-            return CompletableFuture.completedFuture(new MatchRequestResult(null, null,
-                    List.of(MatchResponse.failure(requestId, "No servers available"))));
-        }
-
-        RegisteredServer server = optimalServer.get();
         CompletableFuture<MatchRequestResult> responsesFuture = new CompletableFuture<>();
 
         executor.submit(() -> {
 
+            List<Server> alreadyTried = new ArrayList<>();
+
             List<MatchResponse> responses = new ArrayList<>();
 
             for (int i = 0; i < maxAttempts; i++) {
-                MatchRequest matchRequest = new MatchRequest(UUID.randomUUID(), queueId, teams);
-                CompletableFuture<MatchResponse> future = requestMatchFromServer(server, matchRequest);
 
-                MatchResponse response = null;
-                try {
-                    response = future.get(500, TimeUnit.MILLISECONDS);
-                } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                    response = MatchResponse.failure(requestId, "Failed to get response from server");
-                }
+                Optional<RegisteredServer> optimalServer = findOptimalServer(filter, servers, alreadyTried);
 
-                responses.add(response);
-                if (response.isSuccessful()) {
-                    server.setActiveGames(server.getActiveGames() + 1);
-                    responsesFuture.complete(new MatchRequestResult(server, matchRequest, responses));
+                // If no servers are available, return a failed response
+                if (optimalServer.isEmpty()) {
+                    responsesFuture.complete(new MatchRequestResult(null, null, List.of(MatchResponse.failure(requestId, "No servers available"))));
                     return;
                 }
+                RegisteredServer server = optimalServer.get();
+
+                if (requestServer(queueId, teams, server, requestId, responses, responsesFuture)) return;
             }
             responsesFuture.complete(new MatchRequestResult(null, null, responses));
         });
@@ -72,11 +62,44 @@ public class MatchManager {
     }
 
     @NotNull
-    private CompletableFuture<MatchResponse> requestMatchFromServer(RegisteredServer server, MatchRequest matchRequest) {
+    private static Optional<RegisteredServer> findOptimalServer(Predicate<Server> filter, Collection<RegisteredServer> servers, List<Server> alreadyTried) {
+        // Find the server with the lowest load percentage and that matches the filter
+        Optional<RegisteredServer> optimalServer = servers.stream()
+                .filter(registeredServer -> !alreadyTried.contains(registeredServer))
+                .filter(registeredServer -> registeredServer.getActiveGames() < registeredServer.getMaxGames())
+                .filter(filter)
+                .min(Comparator.comparingDouble(Server::getLoadPercentage));
+
+        if(optimalServer.isEmpty() && !alreadyTried.isEmpty()) {
+            // If no server is found, try again with the servers that were already tried
+            return findOptimalServer(filter, servers, new ArrayList<>());
+        }
+
+        return optimalServer;
+    }
+
+    private boolean requestServer(String queueId, List<List<UUID>> teams,
+                                  RegisteredServer server, UUID requestId, List<MatchResponse> responses,
+                                  CompletableFuture<MatchRequestResult> responsesFuture) {
+        MatchRequest matchRequest = new MatchRequest(UUID.randomUUID(), queueId, teams);
         server.getChannel().writeAndFlush(new MatchRequestPacket(matchRequest));
         CompletableFuture<MatchResponse> future = new CompletableFuture<>();
         matchRequests.put(matchRequest.getRequestId(), future);
-        return future;
+
+        MatchResponse response = null;
+        try {
+            response = future.get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            response = MatchResponse.failure(requestId, "Failed to get response from server");
+        }
+
+        responses.add(response);
+        if (response.isSuccessful()) {
+            server.setActiveGames(server.getActiveGames() + 1);
+            responsesFuture.complete(new MatchRequestResult(server, matchRequest, responses));
+            return true;
+        }
+        return false;
     }
 
 }
