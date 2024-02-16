@@ -63,7 +63,7 @@ public class ErosClient {
     }
 
     public void startHeartbeat(Timer timer, Supplier<Server> serverSupplier) {
-        timer.scheduleAtFixedRate(new HeartbeatTask(packetManager, serverSupplier), 0, 1000);
+        timer.scheduleAtFixedRate(new HeartbeatTask(packetManager, serverSupplier), 0, 5000);
     }
 
 }
