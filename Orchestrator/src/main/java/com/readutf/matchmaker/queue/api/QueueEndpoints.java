@@ -29,6 +29,15 @@ public class QueueEndpoints {
         };
     }
 
+    public Handler createQueue() {
+        return ctx -> {
+            String queueName = ctx.queryParam("name");
+            String matchMakerId = ctx.queryParam("matchMakerId");
+            String filterId = ctx.queryParam("filterId");
+            ctx.json(queueManager.createQueue(queueName, matchMakerId, filterId));
+        };
+    }
+
     public Handler listFilters() {
         return ctx -> ctx.json(queueManager.getServerFilters());
     }
