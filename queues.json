@@ -1,0 +1,11 @@
+[
+  {
+    "name": "test",
+    "matchMakerId": "simple",
+    "serverFilterId": "hub_category",
+    "inQueue": [],
+    "maxTeamSize": 4,
+    "minTeamSize": 2,
+    "numberOfTeams": 2
+  }
+]

@@ -8,6 +8,6 @@ import java.util.UUID;
 
 public interface MatchMaker {
 
-    @NotNull List<List<UUID>> onIteration(Collection<QueueEntry> queueEntry);
+    @NotNull List<List<UUID>> onIteration(Collection<QueueEntry> queueEntry) throws Exception;
 
 }

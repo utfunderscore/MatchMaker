@@ -1,4 +1,4 @@
-package com.readutf.matchmaker.utils.endpoint.annotation;
+package com.readutf.matchmaker.api.annotation;
 
 import java.lang.annotation.*;
 

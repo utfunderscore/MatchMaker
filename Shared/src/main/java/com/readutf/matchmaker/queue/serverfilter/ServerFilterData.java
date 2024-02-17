@@ -9,6 +9,6 @@ import java.util.List;
 public class ServerFilterData {
 
     private final String filterName;
-    private final String serverFilterCreatorId;
+    private final String creatorId;
     private final List<String> arguments;
 }
