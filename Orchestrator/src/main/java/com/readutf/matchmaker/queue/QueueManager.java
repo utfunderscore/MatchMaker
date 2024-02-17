@@ -4,7 +4,10 @@ import com.readutf.matchmaker.queue.serverfilter.InbuiltFilters;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterCreator;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterData;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterStore;
+import com.readutf.matchmaker.queue.store.QueueStore;
+import com.readutf.matchmaker.queue.store.impl.FlatFileQueueStore;
 import com.readutf.matchmaker.server.Server;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -18,23 +21,27 @@ public class QueueManager {
     private final Map<String, MatchMaker> matchMakers;
     private final Map<String, ServerFilterCreator> serverFilterCreators;
     private final Map<String, ServerFilterData> serverFilters;
-
     private final Map<UUID, Queue> queues = new HashMap<>();
+    private final QueueStore queueStore;
 
-    public QueueManager() {
-        this.serverFilterStore = new ServerFilterStore(new File(System.getProperty("user.dir")));
+    @SneakyThrows
+    public QueueManager(File baseDir) {
+        this.serverFilterStore = new ServerFilterStore(baseDir);
         this.matchMakers = new HashMap<>();
+        this.queueStore = new FlatFileQueueStore(baseDir);
         this.serverFilterCreators = Map.of(
                 "category", InbuiltFilters.getCategoryFilter()
         );
         this.serverFilters = serverFilterStore.loadAll();
+        this.queueStore.loadQueues().forEach(queue -> queues.put(queue.getQueueId(), queue));
     }
 
     public Queue createQueue(String queueName, String matchMakerId, String filterId) throws Exception {
         if(!matchMakers.containsKey(matchMakerId)) throw new Exception("MatchMaker does not exist");
 
-        Queue queue = new Queue(queueName, matchMakerId, filterId);
+        Queue queue = new Queue(queueName, matchMakerId, filterId, 1, 1, 1);
         queues.put(queue.getQueueId(), queue);
+        queueStore.saveQueues(queues.values());
         return queue;
     }
 
