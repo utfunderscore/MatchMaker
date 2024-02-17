@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 @Getter
 public class Queue {
 
-    private final UUID queueId;
     private final String name, matchMakerId, serverFilterId;
     private final Collection<QueueEntry> inQueue;
     private final int maxTeamSize;
@@ -18,7 +17,6 @@ public class Queue {
     private final int numberOfTeams;
 
     public Queue(String name, String matchMakerId, String serverFilterId, int maxTeamSize, int minTeamSize, int numberOfTeams) {
-        this.queueId = UUID.randomUUID();
         this.name = name;
         this.matchMakerId = matchMakerId;
         this.serverFilterId = serverFilterId;
