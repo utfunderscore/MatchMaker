@@ -18,6 +18,7 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Timer;
@@ -44,10 +45,11 @@ public class ErosServer {
         this.timer = new Timer();
         this.port = port;
         this.address = address;
+        File baseDir = new File(System.getProperty("user.dir"));
         this.packetManager = setupPacketManager();
         this.networkManager = new NetworkManager(Executors.newCachedThreadPool(), packetManager);
         this.serverUpdateManager = new ServerUpdateManager(timer);
-        this.queueManager = new QueueManager();
+        this.queueManager = new QueueManager(baseDir);
         this.channel = networkManager.startConnection(address, port);
         logger.info("Orchestrator started on " + address + ":" + port);
         this.serverManager = new ServerManager(serverUpdateManager, packetManager);
