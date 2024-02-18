@@ -1,22 +1,23 @@
 package com.readutf.matchmaker.server.socket;
 
-import io.javalin.websocket.WsConnectContext;
-import io.javalin.websocket.WsConnectHandler;
-import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
+import com.readutf.matchmaker.api.socket.WebSocket;
+import io.javalin.websocket.WsContext;
 
-@RequiredArgsConstructor
-public class ServerUpdateSocket implements WsConnectHandler {
+public class ServerUpdateSocket extends WebSocket {
 
     private final ServerUpdateManager serverUpdateManager;
 
+    public ServerUpdateSocket(ServerUpdateManager serverUpdateManager) {
+        super("/serverinfo/{category}");
+        this.serverUpdateManager = serverUpdateManager;
+    }
+
     @Override
-    public void handleConnect(@NotNull WsConnectContext wsConnectContext) {
-        String category = wsConnectContext.pathParam("category");
+    public void onConnect(WsContext wsContext) {
+        String category = wsContext.pathParam("category");
+        wsContext.send("category: " + category);
 
-        wsConnectContext.send("category: " + category);
-        serverUpdateManager.registerCategoryListener(category, wsConnectContext);
-
+        serverUpdateManager.registerCategoryListener(category, wsContext);
     }
 
 }

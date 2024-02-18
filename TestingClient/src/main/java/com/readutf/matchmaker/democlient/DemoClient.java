@@ -22,7 +22,7 @@ public class DemoClient {
                 serverId,
                 "localhost",
                 8080,
-                "game",
+                "hub",
                 gameManager.getMatchData(),
                 new HashMap<>(),
                 System.currentTimeMillis(),

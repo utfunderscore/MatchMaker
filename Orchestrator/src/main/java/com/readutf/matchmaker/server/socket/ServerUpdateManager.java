@@ -2,11 +2,9 @@ package com.readutf.matchmaker.server.socket;
 
 import com.google.gson.reflect.TypeToken;
 import com.readutf.matchmaker.server.Server;
-import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsContext;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Stores a list of servers that have been updated and sends them to the appropriate websockets.

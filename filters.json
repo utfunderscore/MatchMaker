@@ -1,1 +1,9 @@
-{"hub_category":{"filterName":"hub_category","serverFilterCreatorId":"category","arguments":["hub"]}}
+{
+    "hub_category": {
+        "arguments": [
+            "hub"
+        ],
+        "filterName": "hub_category",
+        "creatorId": "category"
+    }
+}

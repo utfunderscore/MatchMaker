@@ -20,13 +20,11 @@ import java.util.function.Predicate;
 public class MatchManager {
 
     private final ServerManager serverManager;
-    private final MatchEndpoints matchEndpoints;
     private final Map<UUID, CompletableFuture<MatchResponse>> matchRequests;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public MatchManager(PacketManager packetManager, ServerManager serverManager) {
         this.serverManager = serverManager;
-        this.matchEndpoints = new MatchEndpoints(this);
         this.matchRequests = new HashMap<>();
         packetManager.registerListeners(new MatchResponseListener(this));
     }

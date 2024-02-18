@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @RequiredArgsConstructor
 public class SocketManager {
@@ -15,7 +13,7 @@ public class SocketManager {
     private final Javalin javalin;
     private final List<WebSocket> webSockets;
 
-    public SocketManager(Javalin javalin, Timer timer) {
+    public SocketManager(Javalin javalin) {
         this.javalin = javalin;
         this.webSockets = new ArrayList<>();
     }

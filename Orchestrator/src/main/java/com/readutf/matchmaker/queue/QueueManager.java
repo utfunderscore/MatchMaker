@@ -44,10 +44,10 @@ public class QueueManager {
         this.queueStore.loadQueues().forEach(queue -> queues.put(queue.getName(), queue));
     }
 
-    public QueueTask startQueueTask(MatchManager matchManager, EndpointManager endpointManager) {
+    public QueueTask startQueueTask(MatchManager matchManager, WebSocket queueSocket) {
         if (queueTask != null) throw new IllegalStateException("Queue task already running");
 
-        queueTask = new QueueTask(this, matchManager, endpointManager.getSocketManager().registerSocket(new WebSocket("/queue/info/", true)));
+        queueTask = new QueueTask(this, matchManager, queueSocket);
 
         return queueTask;
     }

@@ -4,11 +4,10 @@ import com.google.gson.Gson;
 import com.readutf.matchmaker.ErosServer;
 import com.readutf.matchmaker.api.annotation.*;
 import com.readutf.matchmaker.api.socket.SocketManager;
-import com.readutf.matchmaker.matches.MatchManager;
+import com.readutf.matchmaker.api.socket.WebSocket;
 import com.readutf.matchmaker.matches.api.MatchEndpoints;
 import com.readutf.matchmaker.queue.api.QueueEndpoints;
 import com.readutf.matchmaker.server.api.ServerEndpoints;
-import com.readutf.matchmaker.server.socket.ServerUpdateManager;
 import com.readutf.matchmaker.server.socket.ServerUpdateSocket;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
@@ -22,7 +21,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 
 @Getter
 public class EndpointManager {
@@ -32,38 +30,28 @@ public class EndpointManager {
     private final Javalin javalin;
     private final Gson gson;
     private final SocketManager socketManager;
+    private final QueueEndpoints queueEndpoints;
+    private final MatchEndpoints matchEndpoints;
+    private final ServerEndpoints serverEndpoints;
+    private final WebSocket queueSocket;
+    private final ServerUpdateSocket serverUpdateSocket;
 
-    public EndpointManager(ErosServer erosServer, Gson gson) {
-        this.gson = gson;
-
-        QueueEndpoints queueEndpoints = new QueueEndpoints(erosServer.getQueueManager());
-        MatchEndpoints matchEndpoints = erosServer.getMatchManager().getMatchEndpoints();
-        ServerUpdateManager serverUpdateManager = erosServer.getServerUpdateManager();
-        MatchManager matchManager = erosServer.getMatchManager();
-        ServerEndpoints serverEndpoints = new ServerEndpoints(erosServer.getServerManager());
-
-        this.javalin = Javalin
-                .create(config -> {
-                    config.jsonMapper(new JavalinGson());
-                })
-                .ws("/serverinfo/{category}", ws -> {
-                    ws.onConnect(new ServerUpdateSocket(serverUpdateManager));
-                })
-//                .put("/queue/create", queueEndpoints.createQueue())
-                .get("/match/create", matchManager.getMatchEndpoints().createMatch())
-                .get("/server/list", serverEndpoints.listServers())
-                .start(8080);
-
-
-        this.socketManager = new SocketManager(javalin, new Timer());
-
+    public EndpointManager(ErosServer erosServer) {
+        this.gson = ErosServer.getGson();
+        this.queueEndpoints = registerEndpoint(new QueueEndpoints(erosServer.getQueueManager()));
+        this.matchEndpoints = registerEndpoint(new MatchEndpoints(erosServer.getMatchManager()));
+        this.serverEndpoints = registerEndpoint(new ServerEndpoints(erosServer.getServerManager()));
+        this.javalin = Javalin.create(config -> config.jsonMapper(new JavalinGson())).start(8080);
+        this.socketManager = new SocketManager(javalin);
+        this.queueSocket = socketManager.registerSocket(new WebSocket("/queue/listener"));
+        this.serverUpdateSocket = (ServerUpdateSocket) socketManager.registerSocket(new ServerUpdateSocket(erosServer.getServerUpdateManager()));
     }
 
     /**
      * Scans each function annotated with @RestEndpoint
      * @param object
      */
-    public void registerObject(Object object) {
+    public <T> T registerEndpoint(T object) {
 
         Class<?> clazz = object.getClass();
 
@@ -98,7 +86,7 @@ public class EndpointManager {
 
         }
 
-
+        return object;
     }
 
     @NotNull
@@ -122,11 +110,11 @@ public class EndpointManager {
 
             } catch (InvocationTargetException invocationException) {
                 Throwable targetException = invocationException.getTargetException();
-                logger.error("Error while invoking method " + method.getName(), targetException);
+                logger.debug("Error while invoking method " + method.getName(), targetException);
                 ApiResponse<Object> response = ApiResponse.error(targetException.getMessage());
                 ctx.json(response);
             } catch (Exception e) {
-                logger.error("Error while invoking method " + method.getName(), e);
+                logger.debug("Error while invoking method " + method.getName(), e);
                 ApiResponse<Object> response = ApiResponse.error(e.getMessage());
                 ctx.json(response);
             }

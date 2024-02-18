@@ -1,5 +1,6 @@
 package com.readutf.matchmaker;
 
+import com.google.gson.Gson;
 import com.readutf.matchmaker.api.EndpointManager;
 import com.readutf.matchmaker.matches.MatchManager;
 import com.readutf.matchmaker.network.NetworkManager;
@@ -28,7 +29,8 @@ import java.util.concurrent.Executors;
 public class ErosServer {
 
     private static final Logger logger = LoggerFactory.getLogger(ErosServer.class);
-    private static final Timer timer = new Timer();
+    private static @Getter final Timer timer = new Timer();
+    private static @Getter final Gson gson = new Gson();
 
     private final PacketManager packetManager;
     private final NetworkManager networkManager;
@@ -54,6 +56,8 @@ public class ErosServer {
         this.serverManager = new ServerManager(serverUpdateManager, packetManager);
         this.matchManager = new MatchManager(packetManager, serverManager);
         this.endpointManager = new EndpointManager(this);
+
+        queueManager.startQueueTask(matchManager, endpointManager.getQueueSocket());
     }
 
     public PacketManager setupPacketManager() {

@@ -11,12 +11,10 @@ import java.util.List;
 public class WebSocket {
 
     private final String path;
-    private final boolean keepAlive;
     private final List<WsContext> contexts;
 
-    public WebSocket(String path, boolean keepAlive) {
+    public WebSocket(String path) {
         this.path = path;
-        this.keepAlive = keepAlive;
         this.contexts = new ArrayList<>();
     }
 
