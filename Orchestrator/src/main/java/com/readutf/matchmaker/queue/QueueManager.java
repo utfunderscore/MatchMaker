@@ -1,5 +1,8 @@
 package com.readutf.matchmaker.queue;
 
+import com.readutf.matchmaker.api.EndpointManager;
+import com.readutf.matchmaker.api.socket.WebSocket;
+import com.readutf.matchmaker.matches.MatchManager;
 import com.readutf.matchmaker.queue.impl.BasicMatchMaker;
 import com.readutf.matchmaker.queue.serverfilter.InbuiltFilters;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterCreator;
@@ -28,6 +31,8 @@ public class QueueManager {
     private final Map<String, Queue> queues = new HashMap<>();
     private final QueueStore queueStore;
 
+    private QueueTask queueTask;
+
     @SneakyThrows
     public QueueManager(File baseDir) {
         this.serverFilterStore = new ServerFilterStore(baseDir);
@@ -40,6 +45,14 @@ public class QueueManager {
         );
         this.serverFilters = serverFilterStore.loadAll();
         this.queueStore.loadQueues().forEach(queue -> queues.put(queue.getName(), queue));
+    }
+
+    public QueueTask startQueueTask(MatchManager matchManager, EndpointManager endpointManager) {
+        if(queueTask != null) throw new IllegalStateException("Queue task already running");
+
+        queueTask = new QueueTask(this, matchManager, endpointManager.getSocketManager().registerSocket(new WebSocket("/queue/", true)));
+
+        return queueTask;
     }
 
     public Queue createQueue(String queueName, String matchMakerId, String filterId, int maxTeamSize, int minTeamSize, int numberOfTeams) throws Exception {

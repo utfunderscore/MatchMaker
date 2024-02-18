@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 public class ErosServer {
 
     private static final Logger logger = LoggerFactory.getLogger(ErosServer.class);
+    private static final Timer timer = new Timer();
 
     private final PacketManager packetManager;
     private final NetworkManager networkManager;
@@ -36,13 +37,11 @@ public class ErosServer {
     private final ServerUpdateManager serverUpdateManager;
     private final MatchManager matchManager;
     private final QueueManager queueManager;
-    private final Timer timer;
     private final Channel channel;
     private final String address;
     private final int port;
 
     public ErosServer(String address, int port) {
-        this.timer = new Timer();
         this.port = port;
         this.address = address;
         File baseDir = new File(System.getProperty("user.dir"));

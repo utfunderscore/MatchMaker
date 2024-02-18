@@ -4,10 +4,11 @@ import com.readutf.matchmaker.api.annotation.GET;
 import com.readutf.matchmaker.api.annotation.MappingPath;
 import com.readutf.matchmaker.api.annotation.PUT;
 import com.readutf.matchmaker.api.annotation.RestEndpoint;
+import com.readutf.matchmaker.api.socket.WebSocket;
 import com.readutf.matchmaker.queue.Queue;
 import com.readutf.matchmaker.queue.QueueManager;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterData;
-import com.readutf.matchmaker.utils.endpoint.annotation.*;
+import io.javalin.websocket.WsContext;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;

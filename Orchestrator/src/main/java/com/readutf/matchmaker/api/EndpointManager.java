@@ -3,6 +3,7 @@ package com.readutf.matchmaker.api;
 import com.google.gson.Gson;
 import com.readutf.matchmaker.ErosServer;
 import com.readutf.matchmaker.api.annotation.*;
+import com.readutf.matchmaker.api.socket.SocketManager;
 import com.readutf.matchmaker.matches.MatchManager;
 import com.readutf.matchmaker.matches.api.MatchEndpoints;
 import com.readutf.matchmaker.queue.api.QueueEndpoints;
@@ -13,6 +14,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.json.JavalinGson;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,13 +22,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
+@Getter
 public class EndpointManager {
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EndpointManager.class);
 
     private final Javalin javalin;
     private final Gson gson;
+    private final SocketManager socketManager;
 
     public EndpointManager(ErosServer erosServer, Gson gson) {
         this.gson = gson;
@@ -48,6 +53,10 @@ public class EndpointManager {
                 .get("/match/create", matchManager.getMatchEndpoints().createMatch())
                 .get("/server/list", serverEndpoints.listServers())
                 .start(8080);
+
+
+        this.socketManager = new SocketManager(javalin, new Timer());
+
     }
 
     /**

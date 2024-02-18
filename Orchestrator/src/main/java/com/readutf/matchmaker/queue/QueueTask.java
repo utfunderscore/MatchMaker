@@ -1,5 +1,7 @@
 package com.readutf.matchmaker.queue;
 
+import com.readutf.matchmaker.api.socket.SocketManager;
+import com.readutf.matchmaker.api.socket.WebSocket;
 import com.readutf.matchmaker.matches.MatchManager;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -19,6 +21,7 @@ public class QueueTask extends TimerTask {
 
     private final QueueManager queueManager;
     private final MatchManager matchManager;
+    private final WebSocket listenerSocket;
 
     @Override
     public void run() {
