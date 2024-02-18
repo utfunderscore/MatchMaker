@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @RestEndpoint("/queue")
 @RequiredArgsConstructor
@@ -36,6 +37,12 @@ public class QueueEndpoints {
     @MappingPath("/filter/create")
     public ServerFilterData createFilter(String name, String typeId, List<String> parameters) throws Exception {
         return queueManager.registerFilter(new ServerFilterData(name, typeId, parameters));
+    }
+
+    @PUT
+    @MappingPath("/add")
+    public void addToQueue(String queueName, String playerId) {
+        queueManager.addToQueue(queueName, UUID.fromString(playerId));
     }
 
 }

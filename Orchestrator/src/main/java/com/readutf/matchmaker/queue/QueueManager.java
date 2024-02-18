@@ -15,10 +15,7 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class QueueManager {
@@ -48,15 +45,14 @@ public class QueueManager {
     }
 
     public QueueTask startQueueTask(MatchManager matchManager, EndpointManager endpointManager) {
-        if(queueTask != null) throw new IllegalStateException("Queue task already running");
+        if (queueTask != null) throw new IllegalStateException("Queue task already running");
 
-        queueTask = new QueueTask(this, matchManager, endpointManager.getSocketManager().registerSocket(new WebSocket("/queue/", true)));
+        queueTask = new QueueTask(this, matchManager, endpointManager.getSocketManager().registerSocket(new WebSocket("/queue/info/", true)));
 
         return queueTask;
     }
 
     public Queue createQueue(String queueName, String matchMakerId, String filterId, int maxTeamSize, int minTeamSize, int numberOfTeams) throws Exception {
-        if (queues.containsKey(queueName)) throw new Exception("Queue already exists");
         if (!matchMakers.containsKey(matchMakerId)) throw new Exception("MatchMaker does not exist");
 
         Queue queue = new Queue(queueName, matchMakerId, filterId, maxTeamSize, minTeamSize, numberOfTeams);
@@ -65,10 +61,20 @@ public class QueueManager {
         return queue;
     }
 
+    public void addToQueue(String queueName, UUID playerId) {
+        Queue orDefault = queues.getOrDefault(queueName, null);
+        if (orDefault == null) throw new IllegalArgumentException("Queue does not exist");
+        MatchMaker matchMaker = matchMakers.get(orDefault.getMatchMakerId());
+        if(matchMaker == null) throw new IllegalArgumentException("MatchMaker does not exist");
+        if(!matchMaker.validateEntry(orDefault, QueueEntry.create(playerId))) throw new IllegalArgumentException("Queue entry does not meet matchmaker requirements");
+
+        orDefault.addToQueue(playerId);
+    }
+
     public ServerFilterData registerFilter(ServerFilterData serverFilterData) throws Exception {
 
         ServerFilterCreator creator = serverFilterCreators.get(serverFilterData.getCreatorId());
-        if(creator == null) {
+        if (creator == null) {
             throw new Exception("Filter type does not exist");
         }
         creator.createFilter(serverFilterData.getArguments().toArray(new String[0]));
@@ -90,6 +96,10 @@ public class QueueManager {
 
     public Collection<Queue> getQueues() {
         return queues.values();
+    }
+
+    public boolean queueExists(String queueName) {
+        return queues.containsKey(queueName);
     }
 
     public Map<String, ServerFilterData> getServerFilters() {

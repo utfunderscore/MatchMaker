@@ -1,19 +1,22 @@
 package com.readutf.matchmaker.queue;
 
-import com.readutf.matchmaker.api.socket.SocketManager;
+import com.readutf.matchmaker.ErosServer;
+import com.readutf.matchmaker.api.ApiResponse;
 import com.readutf.matchmaker.api.socket.WebSocket;
 import com.readutf.matchmaker.matches.MatchManager;
-import lombok.RequiredArgsConstructor;
+import com.readutf.matchmaker.matches.MatchRequestResult;
+import com.readutf.matchmaker.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 
-@RequiredArgsConstructor
 public class QueueTask extends TimerTask {
 
     private static final Logger logger = LoggerFactory.getLogger(QueueTask.class);
@@ -23,47 +26,53 @@ public class QueueTask extends TimerTask {
     private final MatchManager matchManager;
     private final WebSocket listenerSocket;
 
+    public QueueTask(QueueManager queueManager, MatchManager matchManager, WebSocket listenerSocket) {
+        this.queueManager = queueManager;
+        this.matchManager = matchManager;
+        this.listenerSocket = listenerSocket;
+        ErosServer.getTimer().scheduleAtFixedRate(this, 0, 1000);
+    }
+
     @Override
     public void run() {
 
         for (Queue queue : queueManager.getQueues()) {
 
-            executorService.submit(() -> {
+//            executorService.submit(() -> {
 
-                String matchMakerId = queue.getMatchMakerId();
-                MatchMaker matchMaker = queueManager.getMatchMaker(matchMakerId);
-                if(matchMaker == null) {
-                    logger.warn("MatchMaker not found for queue: " + queue.getName());
-                    return;
+            String matchMakerId = queue.getMatchMakerId();
+            MatchMaker matchMaker = queueManager.getMatchMaker(matchMakerId);
+            if (matchMaker == null) {
+                logger.warn("MatchMaker not found for queue: " + queue.getName());
+                return;
+            }
+
+            if (queue.getQueueSize() < queue.getMinTeamSize() * queue.getNumberOfTeams()) return;
+
+
+            try {
+                List<List<UUID>> teams = matchMaker.onIteration(queue, queue.getInQueue());
+
+                queue.getInQueue().removeIf(queueEntry -> queueEntry.getPlayers().stream().anyMatch(uuid -> teams.stream().flatMap(Collection::stream).toList().contains(uuid)));
+
+                Predicate<Server> filter = queueManager.getFilter(queue.getServerFilterId());
+                if (filter == null) {
+                    throw new Exception("Filter not found for queue: " + queue.getName());
                 }
 
-                try {
-                    List<List<UUID>> teams = matchMaker.onIteration(queue.getInQueue());
+                matchManager.requestMatch(queue.getName(), filter, teams, 3).thenAccept( matchRequestResult ->
+                        listenerSocket.send(ApiResponse.success(matchRequestResult)));
 
+            } catch (Exception e) {
 
+                listenerSocket.send(ApiResponse.error(e.getMessage()));
+                logger.error("Failed to find a match for queue: " + queue.getName(), e);
 
-                } catch (Exception e) {
+                queue.getInQueue().clear();
 
-                    return;
-                }
+                return;
+            }
 
-//                Predicate<Server> filter = queueManager.getFilter(queue.getServerFilterId());
-//                if(filter == null) {
-//                    System.out.println("Filter not found");
-//                    return;
-//                }
-//
-//                MatchRequestResult future = matchManager.requestMatch(queue.getQueueId().toString(), filter, teams, 3).join();
-//                if(future.isFailure()) {
-//                    System.out.println("Failed to find a match");
-//                    return;
-//                }
-//
-//
-//
-//                queue.getInQueue().removeIf(queueEntry -> queueEntry.getPlayers().stream().anyMatch(uuid -> teams.stream().flatMap(Collection::stream).toList().contains(uuid)));
-
-            });
 
         }
 
