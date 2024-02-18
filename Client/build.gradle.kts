@@ -1,10 +1,12 @@
+import java.lang.ProcessBuilder.Redirect
+
 plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("java")
 }
 
 group = "com.readutf.matchmaker.client"
-version = "1.0-SNAPSHOT"
+version = getGitCommitNumber()
 
 repositories {
     mavenCentral()
@@ -31,4 +33,15 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+fun getGitCommitNumber(): String {
+    val stdOut = ProcessBuilder("git", "rev-list", "--count", "HEAD")
+        .redirectOutput(Redirect.PIPE)
+        .start()
+        .inputStream
+        .bufferedReader()
+        .readText()
+
+    return stdOut.trim()
 }
