@@ -13,4 +13,8 @@ public class QueueEntry {
     private final long enqueueTime;
     private final List<UUID> players;
 
+    public static QueueEntry create(UUID playerId) {
+        return new QueueEntry(playerId, System.currentTimeMillis(), List.of(playerId));
+    }
+
 }
