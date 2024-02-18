@@ -1,8 +1,10 @@
 package com.readutf.matchmaker.api.socket;
 
+import com.readutf.matchmaker.api.ApiResponse;
 import io.javalin.websocket.WsContext;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -15,7 +17,7 @@ public class WebSocket {
     public WebSocket(String path, boolean keepAlive) {
         this.path = path;
         this.keepAlive = keepAlive;
-        this.contexts = List.of();
+        this.contexts = new ArrayList<>();
     }
 
     public void onConnect(WsContext wsContext) {};
@@ -24,15 +26,9 @@ public class WebSocket {
 
     public void onClose(WsContext wsContext) {};
 
-    public void send(String message) {
+    public void send(ApiResponse<?> response) {
         for (WsContext context : contexts) {
-            context.send(message);
-        }
-    }
-
-    public void sendJson(Object data) {
-        for (WsContext context : contexts) {
-            context.send(data);
+            context.send(response);
         }
     }
 
