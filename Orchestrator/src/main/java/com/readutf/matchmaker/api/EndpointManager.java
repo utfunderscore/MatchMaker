@@ -38,10 +38,10 @@ public class EndpointManager {
 
     public EndpointManager(ErosServer erosServer) {
         this.gson = ErosServer.getGson();
+        this.javalin = Javalin.create(config -> config.jsonMapper(new JavalinGson())).start(8080);
         this.queueEndpoints = registerEndpoint(new QueueEndpoints(erosServer.getQueueManager()));
         this.matchEndpoints = registerEndpoint(new MatchEndpoints(erosServer.getMatchManager()));
         this.serverEndpoints = registerEndpoint(new ServerEndpoints(erosServer.getServerManager()));
-        this.javalin = Javalin.create(config -> config.jsonMapper(new JavalinGson())).start(8080);
         this.socketManager = new SocketManager(javalin);
         this.queueSocket = socketManager.registerSocket(new WebSocket("/queue/listener"));
         this.serverUpdateSocket = (ServerUpdateSocket) socketManager.registerSocket(new ServerUpdateSocket(erosServer.getServerUpdateManager()));
@@ -56,7 +56,7 @@ public class EndpointManager {
         Class<?> clazz = object.getClass();
 
         if (!clazz.isAnnotationPresent(RestEndpoint.class))
-            throw new IllegalArgumentException("Class is not a RestEndpoint");
+            throw new IllegalArgumentException("Class " + clazz.getSimpleName() + " is not a RestEndpoint");
 
         RestEndpoint restEndpoint = clazz.getAnnotation(RestEndpoint.class);
 
