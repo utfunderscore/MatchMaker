@@ -21,7 +21,6 @@ public class SocketManager {
     public WebSocket registerSocket(WebSocket webSocket) {
         webSockets.add(webSocket);
 
-        System.out.println(webSocket.getPath());
 
         javalin.ws(webSocket.getPath(), wsConfig -> {
             wsConfig.onConnect(wsContext -> {
