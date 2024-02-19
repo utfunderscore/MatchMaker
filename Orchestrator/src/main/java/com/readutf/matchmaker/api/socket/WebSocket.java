@@ -24,9 +24,9 @@ public class WebSocket {
 
     public void onClose(WsContext wsContext) {};
 
-    public void send(ApiResponse<?> response) {
+    public void send(Object object) {
         for (WsContext context : contexts) {
-            context.send(response);
+            context.send(object);
         }
     }
 
