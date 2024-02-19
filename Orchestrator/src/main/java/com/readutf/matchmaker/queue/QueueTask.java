@@ -1,11 +1,11 @@
 package com.readutf.matchmaker.queue;
 
 import com.readutf.matchmaker.ErosServer;
-import com.readutf.matchmaker.api.ApiResponse;
 import com.readutf.matchmaker.api.socket.WebSocket;
 import com.readutf.matchmaker.matches.MatchManager;
-import com.readutf.matchmaker.matches.MatchRequestResult;
+import com.readutf.matchmaker.queue.events.QueueErrorEvent;
 import com.readutf.matchmaker.server.Server;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 
+@Getter
 public class QueueTask extends TimerTask {
 
     private static final Logger logger = LoggerFactory.getLogger(QueueTask.class);
@@ -40,6 +41,8 @@ public class QueueTask extends TimerTask {
 
 //            executorService.submit(() -> {
 
+            long start = System.currentTimeMillis();
+
             String matchMakerId = queue.getMatchMakerId();
             MatchMaker matchMaker = queueManager.getMatchMaker(matchMakerId);
             if (matchMaker == null) {
@@ -60,19 +63,19 @@ public class QueueTask extends TimerTask {
                     throw new Exception("Filter not found for queue: " + queue.getName());
                 }
 
-                matchManager.requestMatch(queue.getName(), filter, teams, 3).thenAccept( matchRequestResult ->
-                        listenerSocket.send(ApiResponse.success(matchRequestResult)));
+                matchManager.requestMatch(queue.getName(), filter, teams, 3)
+                        .thenAccept(listenerSocket::send);
+
 
             } catch (Exception e) {
 
-                listenerSocket.send(ApiResponse.error(e.getMessage()));
+                listenerSocket.send(new QueueErrorEvent(queue.getName(), e.getMessage()));
                 logger.error("Failed to find a match for queue: " + queue.getName(), e);
 
                 queue.getInQueue().clear();
-
-                return;
             }
 
+            logger.debug("QueueTask took " + (System.currentTimeMillis() - start) + "ms to run");
 
         }
 

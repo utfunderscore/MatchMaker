@@ -2,10 +2,10 @@ package com.readutf.matchmaker.matches;
 
 import com.readutf.matchmaker.match.MatchRequest;
 import com.readutf.matchmaker.match.MatchResponse;
-import com.readutf.matchmaker.matches.api.MatchEndpoints;
 import com.readutf.matchmaker.matches.packet.MatchResponseListener;
 import com.readutf.matchmaker.packet.PacketManager;
 import com.readutf.matchmaker.packet.packets.MatchRequestPacket;
+import com.readutf.matchmaker.queue.events.QueueResultEvent;
 import com.readutf.matchmaker.server.RegisteredServer;
 import com.readutf.matchmaker.server.Server;
 import com.readutf.matchmaker.server.ServerManager;
@@ -29,10 +29,10 @@ public class MatchManager {
         packetManager.registerListeners(new MatchResponseListener(this));
     }
 
-    public CompletableFuture<MatchRequestResult> requestMatch(String queueId, Predicate<Server> filter, List<List<UUID>> teams, int maxAttempts) {
+    public CompletableFuture<QueueResultEvent> requestMatch(String queueId, Predicate<Server> filter, List<List<UUID>> teams, int maxAttempts) {
         UUID requestId = UUID.randomUUID();
         Collection<RegisteredServer> servers = serverManager.getServers();
-        CompletableFuture<MatchRequestResult> responsesFuture = new CompletableFuture<>();
+        CompletableFuture<QueueResultEvent> responsesFuture = new CompletableFuture<>();
 
         executor.submit(() -> {
 
@@ -46,14 +46,14 @@ public class MatchManager {
 
                 // If no servers are available, return a failed response
                 if (optimalServer.isEmpty()) {
-                    responsesFuture.complete(new MatchRequestResult(null, null, List.of(MatchResponse.failure(requestId, "No servers available"))));
+                    responsesFuture.completeExceptionally(new IllegalStateException("No servers available"));
                     return;
                 }
                 RegisteredServer server = optimalServer.get();
 
                 if (requestServer(queueId, teams, server, requestId, responses, responsesFuture)) return;
             }
-            responsesFuture.complete(new MatchRequestResult(null, null, responses));
+            responsesFuture.complete(new QueueResultEvent(queueId, null, null, responses));
         });
 
         return responsesFuture;
@@ -68,7 +68,7 @@ public class MatchManager {
                 .filter(filter)
                 .min(Comparator.comparingDouble(Server::getLoadPercentage));
 
-        if(optimalServer.isEmpty() && !alreadyTried.isEmpty()) {
+        if (optimalServer.isEmpty() && !alreadyTried.isEmpty()) {
             // If no server is found, try again with the servers that were already tried
             return findOptimalServer(filter, servers, new ArrayList<>());
         }
@@ -78,7 +78,8 @@ public class MatchManager {
 
     private boolean requestServer(String queueId, List<List<UUID>> teams,
                                   RegisteredServer server, UUID requestId, List<MatchResponse> responses,
-                                  CompletableFuture<MatchRequestResult> responsesFuture) {
+                                  CompletableFuture<QueueResultEvent> responsesFuture) {
+
         MatchRequest matchRequest = new MatchRequest(UUID.randomUUID(), queueId, teams);
         server.getChannel().writeAndFlush(new MatchRequestPacket(matchRequest));
         CompletableFuture<MatchResponse> future = new CompletableFuture<>();
@@ -94,7 +95,7 @@ public class MatchManager {
         responses.add(response);
         if (response.isSuccessful()) {
             server.setActiveGames(server.getActiveGames() + 1);
-            responsesFuture.complete(new MatchRequestResult(server, matchRequest, responses));
+            responsesFuture.complete(new QueueResultEvent(queueId, server, matchRequest, responses));
             return true;
         }
         return false;

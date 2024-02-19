@@ -1,17 +1,16 @@
 package com.readutf.matchmaker.matches.api;
 
-import com.google.gson.reflect.TypeToken;
+import com.readutf.matchmaker.api.annotation.MappingPath;
 import com.readutf.matchmaker.api.annotation.PUT;
+import com.readutf.matchmaker.api.annotation.RestEndpoint;
 import com.readutf.matchmaker.matches.MatchManager;
-import com.readutf.matchmaker.matches.MatchRequestResult;
-import com.readutf.matchmaker.server.ServerManager;
-import com.readutf.matchmaker.utils.JavalinUtils;
-import io.javalin.http.Handler;
+import com.readutf.matchmaker.queue.events.QueueResultEvent;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@RestEndpoint("/matches")
 public class MatchEndpoints {
 
     private final MatchManager matchManager;
@@ -21,8 +20,9 @@ public class MatchEndpoints {
     }
 
     @PUT
-    public MatchRequestResult createMatch(String queueId, List<List<UUID>> teams, int maxAttempts) {
-        CompletableFuture<MatchRequestResult> matchFuture = matchManager.requestMatch(queueId,server -> true, teams, maxAttempts);
+    @MappingPath("/create")
+    public QueueResultEvent createMatch(String queueId, List<List<UUID>> teams, int maxAttempts) {
+        CompletableFuture<QueueResultEvent> matchFuture = matchManager.requestMatch(queueId, server -> true, teams, maxAttempts);
         return matchFuture.join();
     }
 

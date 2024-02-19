@@ -1,8 +1,8 @@
 package com.readutf.matchmaker.queue;
 
-import com.readutf.matchmaker.api.EndpointManager;
 import com.readutf.matchmaker.api.socket.WebSocket;
 import com.readutf.matchmaker.matches.MatchManager;
+import com.readutf.matchmaker.queue.events.QueuePlayerEvent;
 import com.readutf.matchmaker.queue.impl.BasicMatchMaker;
 import com.readutf.matchmaker.queue.serverfilter.InbuiltFilters;
 import com.readutf.matchmaker.queue.serverfilter.ServerFilterCreator;
@@ -65,10 +65,12 @@ public class QueueManager {
         Queue orDefault = queues.getOrDefault(queueName, null);
         if (orDefault == null) throw new IllegalArgumentException("Queue does not exist");
         MatchMaker matchMaker = matchMakers.get(orDefault.getMatchMakerId());
-        if(matchMaker == null) throw new IllegalArgumentException("MatchMaker does not exist");
-        if(!matchMaker.validateEntry(orDefault, QueueEntry.create(playerId))) throw new IllegalArgumentException("Queue entry does not meet matchmaker requirements");
+        if (matchMaker == null) throw new IllegalArgumentException("MatchMaker does not exist");
+        if (!matchMaker.validateEntry(orDefault, QueueEntry.create(playerId)))
+            throw new IllegalArgumentException("Queue entry does not meet matchmaker requirements");
 
         orDefault.addToQueue(playerId);
+        queueTask.getListenerSocket().send(new QueuePlayerEvent(queueName, true, playerId));
     }
 
     public ServerFilterData registerFilter(ServerFilterData serverFilterData) throws Exception {
