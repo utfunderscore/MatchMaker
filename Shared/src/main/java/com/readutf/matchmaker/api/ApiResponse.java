@@ -1,5 +1,8 @@
 package com.readutf.matchmaker.api;
 
+import lombok.Getter;
+
+@Getter
 public class ApiResponse<T> {
 
     T data;
