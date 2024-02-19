@@ -4,11 +4,10 @@ import com.readutf.matchmaker.packet.PacketManager;
 import com.readutf.matchmaker.packet.packets.ServerHeartbeatPacket;
 import com.readutf.matchmaker.packet.packets.ServerRegisterPacket;
 import com.readutf.matchmaker.packet.packets.ServerUnregisterPacket;
-import com.readutf.matchmaker.queue.serverfilter.ServerFilterData;
 import com.readutf.matchmaker.server.Server;
 import com.readutf.matchmaker.server.ServerHeartbeat;
 
-import java.util.*;
+import java.util.TimerTask;
 import java.util.function.Supplier;
 
 public class HeartbeatTask extends TimerTask {
