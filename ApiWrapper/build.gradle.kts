@@ -55,6 +55,11 @@ tasks.test {
 }
 
 
+// Change shadow jar name
+tasks.shadowJar {
+    archiveFileName.set("ApiWrapper.jar")
+}
+
 fun getGitCommitNumber(): String {
 
 

@@ -52,6 +52,11 @@ tasks.test {
     useJUnitPlatform()
 }
 
+// Change shadow jar name
+tasks.shadowJar {
+    archiveFileName.set("Shared.jar")
+}
+
 fun getGitCommitNumber(): String {
     val stdOut = ProcessBuilder("git", "rev-list", "--count", "HEAD")
         .redirectOutput(Redirect.PIPE)

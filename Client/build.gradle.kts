@@ -45,6 +45,11 @@ publishing {
     }
 }
 
+// Change shadow jar name
+tasks.shadowJar {
+    archiveFileName.set("Client.jar")
+}
+
 tasks.test {
     useJUnitPlatform()
 }

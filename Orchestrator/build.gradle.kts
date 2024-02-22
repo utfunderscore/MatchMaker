@@ -2,6 +2,7 @@ import java.lang.ProcessBuilder.Redirect
 
 plugins {
     id("java")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "com.readutf.matchmaker"
@@ -42,6 +43,11 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+// Change shadow jar name
+tasks.shadowJar {
+    archiveFileName.set("Orchestrator.jar")
 }
 
 tasks.withType<JavaCompile> {
