@@ -2,6 +2,8 @@ import java.lang.ProcessBuilder.Redirect
 
 plugins {
     id("java")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("maven-publish")
 }
 
 group = "com.readutf.matchmaker"
@@ -9,6 +11,18 @@ version = getGitCommitNumber()
 
 repositories {
     mavenCentral()
+}
+
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.readutf.matchmaker"
+            artifactId = "shared"
+            version = getGitCommitNumber()
+            from(components["java"])
+        }
+    }
 }
 
 dependencies {
