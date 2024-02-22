@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    id("java-library")
     id("maven-publish")
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
@@ -22,8 +22,6 @@ publishing {
             groupId = "com.readutf.matchmaker"
             artifactId = "api-wrapper"
             version = getGitCommitNumber()
-
-
             from(components["java"])
         }
     }
@@ -33,10 +31,14 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
-    implementation(project(":Shared"))
-    implementation("com.squareup.retrofit2:retrofit:+")
-    implementation("org.java-websocket:Java-WebSocket:1.5.6")
+
+    api(project(":Shared"))
+
+    api("com.squareup.retrofit2:retrofit:2.9.0")
+    api("org.java-websocket:Java-WebSocket:1.5.6")
+    api("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.reflections:reflections:0.10.2")
 
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
