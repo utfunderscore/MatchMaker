@@ -1,8 +1,9 @@
 import java.lang.ProcessBuilder.Redirect
 
 plugins {
+    id("java-library")
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("java")
+    id("maven-publish")
 }
 
 group = "com.readutf.matchmaker.client"
@@ -16,7 +17,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     
-    implementation(project(":Shared"))
+    api(project(":Shared"))
 
     implementation("io.netty:netty-all:4.1.106.Final")
 
@@ -29,6 +30,19 @@ dependencies {
 
     testCompileOnly ("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor( "org.projectlombok:lombok:1.18.30")
+
+
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.readutf.matchmaker"
+            artifactId = "client"
+            version = getGitCommitNumber()
+            from(components["java"])
+        }
+    }
 }
 
 tasks.test {

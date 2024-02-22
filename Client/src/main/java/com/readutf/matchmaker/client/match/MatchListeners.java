@@ -1,15 +1,12 @@
 package com.readutf.matchmaker.client.match;
 
-import com.readutf.matchmaker.match.MatchRequest;
-import com.readutf.matchmaker.match.MatchResponse;
-import com.readutf.matchmaker.packet.PacketManager;
-import com.readutf.matchmaker.packet.annotations.PacketHandler;
-import com.readutf.matchmaker.packet.packets.MatchRequestPacket;
-import com.readutf.matchmaker.packet.packets.MatchResponsePacket;
+import com.readutf.matchmaker.shared.match.MatchResponse;
+import com.readutf.matchmaker.shared.packet.annotations.PacketHandler;
+import com.readutf.matchmaker.shared.packet.packets.MatchRequestPacket;
+import com.readutf.matchmaker.shared.packet.packets.MatchResponsePacket;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

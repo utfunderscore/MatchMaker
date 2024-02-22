@@ -1,6 +1,6 @@
 package com.readutf.matchmaker.queue.serverfilter;
 
-import com.readutf.matchmaker.server.Server;
+import com.readutf.matchmaker.shared.server.Server;
 
 import java.util.function.Predicate;
 

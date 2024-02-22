@@ -2,6 +2,7 @@ import java.lang.ProcessBuilder.Redirect
 
 plugins {
     id("java")
+    id("maven-publish")
 }
 
 group = "com.readutf.matchmaker"

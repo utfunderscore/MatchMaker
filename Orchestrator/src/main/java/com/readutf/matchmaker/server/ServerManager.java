@@ -1,8 +1,10 @@
 package com.readutf.matchmaker.server;
 
-import com.readutf.matchmaker.packet.PacketManager;
+import com.readutf.matchmaker.shared.packet.PacketManager;
 import com.readutf.matchmaker.server.listeners.ServerListeners;
 import com.readutf.matchmaker.server.socket.ServerUpdateManager;
+import com.readutf.matchmaker.shared.server.Server;
+import com.readutf.matchmaker.shared.server.ServerHeartbeat;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

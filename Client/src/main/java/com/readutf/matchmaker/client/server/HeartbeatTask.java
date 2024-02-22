@@ -1,11 +1,11 @@
 package com.readutf.matchmaker.client.server;
 
-import com.readutf.matchmaker.packet.PacketManager;
-import com.readutf.matchmaker.packet.packets.ServerHeartbeatPacket;
-import com.readutf.matchmaker.packet.packets.ServerRegisterPacket;
-import com.readutf.matchmaker.packet.packets.ServerUnregisterPacket;
-import com.readutf.matchmaker.server.Server;
-import com.readutf.matchmaker.server.ServerHeartbeat;
+import com.readutf.matchmaker.shared.packet.PacketManager;
+import com.readutf.matchmaker.shared.packet.packets.ServerHeartbeatPacket;
+import com.readutf.matchmaker.shared.packet.packets.ServerRegisterPacket;
+import com.readutf.matchmaker.shared.packet.packets.ServerUnregisterPacket;
+import com.readutf.matchmaker.shared.server.Server;
+import com.readutf.matchmaker.shared.server.ServerHeartbeat;
 
 import java.util.TimerTask;
 import java.util.function.Supplier;

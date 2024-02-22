@@ -4,7 +4,7 @@ import com.readutf.matchmaker.api.annotation.MappingPath;
 import com.readutf.matchmaker.api.annotation.PUT;
 import com.readutf.matchmaker.api.annotation.RestEndpoint;
 import com.readutf.matchmaker.matches.MatchManager;
-import com.readutf.matchmaker.queue.events.QueueResultEvent;
+import com.readutf.matchmaker.shared.queue.events.QueueResultEvent;
 
 import java.util.List;
 import java.util.UUID;

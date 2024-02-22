@@ -4,11 +4,10 @@ import com.readutf.matchmaker.client.match.MatchListeners;
 import com.readutf.matchmaker.client.match.MatchRequestHandler;
 import com.readutf.matchmaker.client.network.NetworkManager;
 import com.readutf.matchmaker.client.server.HeartbeatTask;
-import com.readutf.matchmaker.match.MatchRequest;
-import com.readutf.matchmaker.packet.Packet;
-import com.readutf.matchmaker.packet.PacketManager;
-import com.readutf.matchmaker.packet.Serializer;
-import com.readutf.matchmaker.server.Server;
+import com.readutf.matchmaker.shared.packet.Packet;
+import com.readutf.matchmaker.shared.packet.PacketManager;
+import com.readutf.matchmaker.shared.packet.Serializer;
+import com.readutf.matchmaker.shared.server.Server;
 import io.netty.channel.Channel;
 import lombok.Getter;
 import org.reflections.Reflections;
@@ -16,10 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Getter

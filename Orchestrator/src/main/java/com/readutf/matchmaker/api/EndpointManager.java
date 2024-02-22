@@ -7,8 +7,10 @@ import com.readutf.matchmaker.api.socket.SocketManager;
 import com.readutf.matchmaker.api.socket.WebSocket;
 import com.readutf.matchmaker.matches.api.MatchEndpoints;
 import com.readutf.matchmaker.queue.api.QueueEndpoints;
+import com.readutf.matchmaker.queue.socket.QueueListenerSocket;
 import com.readutf.matchmaker.server.api.ServerEndpoints;
-import com.readutf.matchmaker.server.socket.ServerUpdateSocket;
+import com.readutf.matchmaker.server.ServerUpdateSocket;
+import com.readutf.matchmaker.shared.api.ApiResponse;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -21,6 +23,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class EndpointManager {
@@ -38,13 +41,13 @@ public class EndpointManager {
 
     public EndpointManager(ErosServer erosServer) {
         this.gson = ErosServer.getGson();
-        this.javalin = Javalin.create(config -> config.jsonMapper(new JavalinGson())).start(8080);
+        this.javalin = Javalin.create(config -> config.jsonMapper(new JavalinGson(gson, true))).after(getDebugHandler()).start(8080);
         this.queueEndpoints = registerEndpoint(new QueueEndpoints(erosServer.getQueueManager()));
         this.matchEndpoints = registerEndpoint(new MatchEndpoints(erosServer.getMatchManager()));
         this.serverEndpoints = registerEndpoint(new ServerEndpoints(erosServer.getServerManager()));
         this.socketManager = new SocketManager(javalin);
-        this.queueSocket = socketManager.registerSocket(new WebSocket("/queue/listener"));
-        this.serverUpdateSocket = (ServerUpdateSocket) socketManager.registerSocket(new ServerUpdateSocket(erosServer.getServerUpdateManager()));
+        this.queueSocket = socketManager.registerSocket(new QueueListenerSocket(gson));
+        this.serverUpdateSocket = (ServerUpdateSocket) socketManager.registerSocket(new ServerUpdateSocket(gson, erosServer.getServerUpdateManager()));
     }
 
     /**
@@ -81,6 +84,9 @@ public class EndpointManager {
                 logger.info("Registered GET " + absolutePath);
             } else if (method.isAnnotationPresent(PUT.class)) {
                 javalin.put(absolutePath, handler);
+                logger.info("Registered PUT " + absolutePath);
+            } else if (method.isAnnotationPresent(DELETE.class)) {
+                javalin.delete(absolutePath, handler);
                 logger.info("Registered PUT " + absolutePath);
             }
 
@@ -121,6 +127,14 @@ public class EndpointManager {
         };
     }
 
+    public Handler getDebugHandler() {
+        return context -> {
+            String params = context.queryParamMap().entrySet().stream().map(stringListEntry -> stringListEntry.getKey() + "=" + String.join(",", stringListEntry.getValue())).collect(Collectors.joining("&"));
+            logger.info("[%s] %s%s".formatted(context.method(), context.path(), params.isEmpty() ? "" : "?" + params));
+            logger.info(context.result());
+        };
+    }
+
     private static @NotNull List<String> getProvidedArgs(Context ctx, Parameter[] parameters) throws Exception {
         List<String> providedArgs = new ArrayList<>();
         for (Parameter parameter : parameters) {
@@ -132,7 +146,7 @@ public class EndpointManager {
             }
 
             String string = ctx.queryParam(name);
-            if (string == null) throw new IllegalArgumentException("Missing parameter " + name);
+            if (string == null) throw new IllegalArgumentException("Missing parameter '%s'".formatted(name));
             providedArgs.add(string);
         }
         return providedArgs;

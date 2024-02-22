@@ -3,7 +3,7 @@ package com.readutf.matchmaker.queue.store.impl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.readutf.matchmaker.ErosServer;
-import com.readutf.matchmaker.queue.Queue;
+import com.readutf.matchmaker.shared.queue.Queue;
 import com.readutf.matchmaker.queue.store.QueueStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

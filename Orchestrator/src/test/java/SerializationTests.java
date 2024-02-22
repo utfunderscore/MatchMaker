@@ -1,8 +1,8 @@
-import com.readutf.matchmaker.match.MatchData;
-import com.readutf.matchmaker.packet.packets.ServerRegisterPacket;
-import com.readutf.matchmaker.packet.serializers.ServerRegisterSerializer;
-import com.readutf.matchmaker.server.Server;
-import com.readutf.matchmaker.server.ServerHeartbeat;
+import com.readutf.matchmaker.shared.match.MatchData;
+import com.readutf.matchmaker.shared.packet.packets.ServerRegisterPacket;
+import com.readutf.matchmaker.shared.packet.serializers.ServerRegisterSerializer;
+import com.readutf.matchmaker.shared.server.Server;
+import com.readutf.matchmaker.shared.server.ServerHeartbeat;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Assertions;

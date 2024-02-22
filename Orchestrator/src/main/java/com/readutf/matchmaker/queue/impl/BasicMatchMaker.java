@@ -1,8 +1,8 @@
 package com.readutf.matchmaker.queue.impl;
 
 import com.readutf.matchmaker.queue.MatchMaker;
-import com.readutf.matchmaker.queue.Queue;
-import com.readutf.matchmaker.queue.QueueEntry;
+import com.readutf.matchmaker.shared.queue.Queue;
+import com.readutf.matchmaker.shared.queue.QueueEntry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

@@ -3,7 +3,7 @@ package com.readutf.matchmaker.server.api;
 import com.readutf.matchmaker.api.annotation.GET;
 import com.readutf.matchmaker.api.annotation.MappingPath;
 import com.readutf.matchmaker.api.annotation.RestEndpoint;
-import com.readutf.matchmaker.server.Server;
+import com.readutf.matchmaker.shared.server.Server;
 import com.readutf.matchmaker.server.ServerManager;
 import lombok.RequiredArgsConstructor;
 

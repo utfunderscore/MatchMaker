@@ -3,7 +3,7 @@ package com.readutf.matchmaker.queue.serverfilter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.readutf.matchmaker.ErosServer;
-import lombok.Getter;
+import com.readutf.matchmaker.shared.queue.serverfilter.ServerFilterData;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

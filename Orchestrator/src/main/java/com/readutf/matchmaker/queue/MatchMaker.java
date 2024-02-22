@@ -1,8 +1,9 @@
 package com.readutf.matchmaker.queue;
 
+import com.readutf.matchmaker.shared.queue.Queue;
+import com.readutf.matchmaker.shared.queue.QueueEntry;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 

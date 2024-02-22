@@ -7,15 +7,13 @@
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="$PROJECT_DIR$/../../../../Gradle/gradle-8.5" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/ApiWrapper" />
             <option value="$PROJECT_DIR$/Client" />
-            <option value="$PROJECT_DIR$/ClientTestImpl" />
             <option value="$PROJECT_DIR$/Orchestrator" />
             <option value="$PROJECT_DIR$/Shared" />
-            <option value="$PROJECT_DIR$/TestingClient" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -1,6 +1,6 @@
 package com.readutf.matchmaker.queue.store;
 
-import com.readutf.matchmaker.queue.Queue;
+import com.readutf.matchmaker.shared.queue.Queue;
 
 import java.util.Collection;
 import java.util.List;

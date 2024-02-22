@@ -1,7 +1,7 @@
 package com.readutf.matchmaker.client.network;
 
-import com.readutf.matchmaker.packet.Packet;
-import com.readutf.matchmaker.packet.PacketManager;
+import com.readutf.matchmaker.shared.packet.Packet;
+import com.readutf.matchmaker.shared.packet.PacketManager;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.RequiredArgsConstructor;

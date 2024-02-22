@@ -1,13 +1,13 @@
 package com.readutf.matchmaker.matches;
 
-import com.readutf.matchmaker.match.MatchRequest;
-import com.readutf.matchmaker.match.MatchResponse;
+import com.readutf.matchmaker.shared.match.MatchRequest;
+import com.readutf.matchmaker.shared.match.MatchResponse;
 import com.readutf.matchmaker.matches.packet.MatchResponseListener;
-import com.readutf.matchmaker.packet.PacketManager;
-import com.readutf.matchmaker.packet.packets.MatchRequestPacket;
-import com.readutf.matchmaker.queue.events.QueueResultEvent;
+import com.readutf.matchmaker.shared.packet.PacketManager;
+import com.readutf.matchmaker.shared.packet.packets.MatchRequestPacket;
+import com.readutf.matchmaker.shared.queue.events.QueueResultEvent;
 import com.readutf.matchmaker.server.RegisteredServer;
-import com.readutf.matchmaker.server.Server;
+import com.readutf.matchmaker.shared.server.Server;
 import com.readutf.matchmaker.server.ServerManager;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;

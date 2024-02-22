@@ -3,8 +3,10 @@ package com.readutf.matchmaker.queue;
 import com.readutf.matchmaker.ErosServer;
 import com.readutf.matchmaker.api.socket.WebSocket;
 import com.readutf.matchmaker.matches.MatchManager;
-import com.readutf.matchmaker.queue.events.QueueErrorEvent;
-import com.readutf.matchmaker.server.Server;
+import com.readutf.matchmaker.shared.queue.Queue;
+import com.readutf.matchmaker.shared.queue.QueueEvent;
+import com.readutf.matchmaker.shared.queue.events.QueueErrorEvent;
+import com.readutf.matchmaker.shared.server.Server;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +71,7 @@ public class QueueTask extends TimerTask {
 
             } catch (Exception e) {
 
-                listenerSocket.send(new QueueErrorEvent(queue.getName(), e.getMessage()));
+                listenerSocket.send(new QueueErrorEvent(queue.getName(), e.getMessage()), QueueEvent.class);
                 logger.error("Failed to find a match for queue: " + queue.getName(), e);
 
                 queue.getInQueue().clear();

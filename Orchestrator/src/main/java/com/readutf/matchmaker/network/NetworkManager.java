@@ -1,8 +1,8 @@
 package com.readutf.matchmaker.network;
 
-import com.readutf.matchmaker.packet.PacketDecoder;
-import com.readutf.matchmaker.packet.PacketEncoder;
-import com.readutf.matchmaker.packet.PacketManager;
+import com.readutf.matchmaker.shared.packet.PacketDecoder;
+import com.readutf.matchmaker.shared.packet.PacketEncoder;
+import com.readutf.matchmaker.shared.packet.PacketManager;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;

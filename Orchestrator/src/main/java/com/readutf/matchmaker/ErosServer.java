@@ -1,18 +1,18 @@
 package com.readutf.matchmaker;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.readutf.matchmaker.api.EndpointManager;
 import com.readutf.matchmaker.matches.MatchManager;
 import com.readutf.matchmaker.network.NetworkManager;
-import com.readutf.matchmaker.packet.Packet;
-import com.readutf.matchmaker.packet.PacketManager;
-import com.readutf.matchmaker.packet.Serializer;
-import com.readutf.matchmaker.packet.serializers.ServerHeartbeatSerializer;
-import com.readutf.matchmaker.packet.serializers.ServerRegisterSerializer;
-import com.readutf.matchmaker.packet.serializers.ServerUnregisterSerializer;
 import com.readutf.matchmaker.queue.QueueManager;
+import com.readutf.matchmaker.queue.QueueTask;
 import com.readutf.matchmaker.server.ServerManager;
 import com.readutf.matchmaker.server.socket.ServerUpdateManager;
+import com.readutf.matchmaker.shared.packet.Packet;
+import com.readutf.matchmaker.shared.packet.PacketManager;
+import com.readutf.matchmaker.shared.packet.Serializer;
+import com.readutf.matchmaker.shared.queue.QueueEvent;
 import io.netty.channel.Channel;
 import lombok.Getter;
 import org.reflections.Reflections;
@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Timer;
 import java.util.concurrent.Executors;
 
@@ -30,7 +29,7 @@ public class ErosServer {
 
     private static final Logger logger = LoggerFactory.getLogger(ErosServer.class);
     private static @Getter final Timer timer = new Timer();
-    private static @Getter final Gson gson = new Gson();
+    private static @Getter final Gson gson = setupGson();
 
     private final PacketManager packetManager;
     private final NetworkManager networkManager;
@@ -56,7 +55,6 @@ public class ErosServer {
         this.serverManager = new ServerManager(serverUpdateManager, packetManager);
         this.matchManager = new MatchManager(packetManager, serverManager);
         this.endpointManager = new EndpointManager(this);
-
         queueManager.startQueueTask(matchManager, endpointManager.getQueueSocket());
     }
 
@@ -77,5 +75,10 @@ public class ErosServer {
 
         return packetManager;
     }
+
+    public static Gson setupGson() {
+        return new GsonBuilder().registerTypeAdapterFactory(QueueEvent.getAdapter()).create();
+    }
+
 
 }

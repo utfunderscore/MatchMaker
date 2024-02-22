@@ -1,19 +1,18 @@
 package com.readutf.matchmaker.server.listeners;
 
-import com.readutf.matchmaker.packet.annotations.PacketHandler;
-import com.readutf.matchmaker.packet.packets.ChannelClosePacket;
-import com.readutf.matchmaker.packet.packets.ServerHeartbeatPacket;
-import com.readutf.matchmaker.packet.packets.ServerRegisterPacket;
-import com.readutf.matchmaker.packet.packets.ServerUnregisterPacket;
+import com.readutf.matchmaker.shared.packet.annotations.PacketHandler;
+import com.readutf.matchmaker.shared.packet.packets.ChannelClosePacket;
+import com.readutf.matchmaker.shared.packet.packets.ServerHeartbeatPacket;
+import com.readutf.matchmaker.shared.packet.packets.ServerRegisterPacket;
+import com.readutf.matchmaker.shared.packet.packets.ServerUnregisterPacket;
 import com.readutf.matchmaker.server.RegisteredServer;
-import com.readutf.matchmaker.server.ServerHeartbeat;
+import com.readutf.matchmaker.shared.server.ServerHeartbeat;
 import com.readutf.matchmaker.server.ServerManager;
 import io.netty.channel.Channel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 public class ServerListeners {

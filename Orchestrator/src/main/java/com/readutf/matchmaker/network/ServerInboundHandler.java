@@ -1,9 +1,8 @@
 package com.readutf.matchmaker.network;
 
-import com.readutf.matchmaker.packet.Packet;
-import com.readutf.matchmaker.packet.PacketManager;
-import com.readutf.matchmaker.packet.packets.ChannelClosePacket;
-import com.readutf.matchmaker.packet.packets.ServerRegisterPacket;
+import com.readutf.matchmaker.shared.packet.Packet;
+import com.readutf.matchmaker.shared.packet.PacketManager;
+import com.readutf.matchmaker.shared.packet.packets.ChannelClosePacket;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;

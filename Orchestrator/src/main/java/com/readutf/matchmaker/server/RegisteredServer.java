@@ -1,5 +1,6 @@
 package com.readutf.matchmaker.server;
 
+import com.readutf.matchmaker.shared.server.Server;
 import io.netty.channel.Channel;
 import lombok.Getter;
 

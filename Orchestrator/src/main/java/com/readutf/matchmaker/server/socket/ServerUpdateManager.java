@@ -1,7 +1,7 @@
 package com.readutf.matchmaker.server.socket;
 
 import com.google.gson.reflect.TypeToken;
-import com.readutf.matchmaker.server.Server;
+import com.readutf.matchmaker.shared.server.Server;
 import io.javalin.websocket.WsContext;
 
 import java.util.*;

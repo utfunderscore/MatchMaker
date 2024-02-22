@@ -1,9 +1,9 @@
 package com.readutf.matchmaker.matches.packet;
 
-import com.readutf.matchmaker.match.MatchResponse;
+import com.readutf.matchmaker.shared.match.MatchResponse;
 import com.readutf.matchmaker.matches.MatchManager;
-import com.readutf.matchmaker.packet.annotations.PacketHandler;
-import com.readutf.matchmaker.packet.packets.MatchResponsePacket;
+import com.readutf.matchmaker.shared.packet.annotations.PacketHandler;
+import com.readutf.matchmaker.shared.packet.packets.MatchResponsePacket;
 import lombok.RequiredArgsConstructor;
 
 import java.util.concurrent.CompletableFuture;
