@@ -21,8 +21,11 @@ public class MatchEndpoints {
 
     @PUT
     @MappingPath("/create")
-    public QueueResultEvent createMatch(String queueId, List<List<UUID>> teams, int maxAttempts) {
-        CompletableFuture<QueueResultEvent> matchFuture = matchManager.requestMatch(queueId, server -> true, teams, maxAttempts);
+    public QueueResultEvent createMatch(String queueId, List<List<String>> teams, int maxAttempts) {
+
+        List<List<UUID>> teamsParsed = teams.stream().map(uuids -> uuids.stream().map(UUID::fromString).toList()).toList();
+
+        CompletableFuture<QueueResultEvent> matchFuture = matchManager.requestMatch(queueId, server -> true, teamsParsed, maxAttempts);
         return matchFuture.join();
     }
 
