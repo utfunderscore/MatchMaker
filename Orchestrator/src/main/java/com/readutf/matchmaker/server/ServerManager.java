@@ -1,10 +1,11 @@
 package com.readutf.matchmaker.server;
 
-import com.readutf.matchmaker.shared.packet.PacketManager;
 import com.readutf.matchmaker.server.listeners.ServerListeners;
 import com.readutf.matchmaker.server.socket.ServerUpdateManager;
+import com.readutf.matchmaker.shared.packet.PacketManager;
 import com.readutf.matchmaker.shared.server.Server;
 import com.readutf.matchmaker.shared.server.ServerHeartbeat;
+import com.readutf.matchmaker.shared.server.ServerUpdate;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,6 +54,8 @@ public class ServerManager {
             servers.add(registeredServer);
             return servers;
         });
+
+        serverUpdateManager.notifyChange(registeredServer, ServerUpdate.add(registeredServer));
     }
 
     /**
@@ -72,9 +75,8 @@ public class ServerManager {
             return;
         }
 
-        if (server.handleHeartbeat(heartbeat)) {
-            serverUpdateManager.notifyChange(server);
-        }
+        server.handleHeartbeat(heartbeat);
+        serverUpdateManager.notifyChange(server, ServerUpdate.update(heartbeat));
     }
 
     /**
@@ -89,6 +91,9 @@ public class ServerManager {
         List<RegisteredServer> servers = this.channelToServers.get(registeredServer.getChannel());
         servers.remove(registeredServer);
         channelToServers.put(registeredServer.getChannel(), servers);
+
+        serverUpdateManager.notifyChange(registeredServer, ServerUpdate.remove(registeredServer.getId()));
+
     }
 
     public List<String> getActiveGamesDebug() {

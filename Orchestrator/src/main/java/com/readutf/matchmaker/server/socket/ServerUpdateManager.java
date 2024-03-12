@@ -1,7 +1,8 @@
 package com.readutf.matchmaker.server.socket;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.readutf.matchmaker.shared.server.Server;
+import com.readutf.matchmaker.shared.server.ServerUpdate;
 import io.javalin.websocket.WsContext;
 
 import java.util.*;
@@ -13,38 +14,37 @@ import java.util.*;
  */
 public class ServerUpdateManager extends TimerTask {
 
-    private final HashMap<String, Set<Server>> updated;
+    private final Gson gson;
+    private final HashMap<Server, ServerUpdate<?>> serverUpdates;
     private final HashMap<String, List<WsContext>> categoryToSockets;
 
-    public ServerUpdateManager(Timer timer) {
-        this.updated = new HashMap<>();
+    public ServerUpdateManager(Gson gson, Timer timer) {
+        this.gson = gson;
+        this.serverUpdates = new HashMap<>();
         this.categoryToSockets = new HashMap<>();
         timer.scheduleAtFixedRate(this, 0, 5000);
     }
 
     @Override
     public void run() {
-        HashMap<String, Set<Server>> latest = new HashMap<>(updated);
-        updated.clear();
 
-        latest.forEach((s, servers) -> {
+        new HashMap<>(serverUpdates).forEach((server, serverUpdate) -> {
+            List<WsContext> sockets = categoryToSockets.getOrDefault(server.getCategory(), new ArrayList<>());
+            sockets.addAll(categoryToSockets.getOrDefault("*", new ArrayList<>()));
 
-            List<WsContext> contexts = categoryToSockets.getOrDefault(s, new ArrayList<>());
-            contexts.addAll(categoryToSockets.getOrDefault("*", new ArrayList<>()));
-
-            for (WsContext context : contexts) {
-                context.sendAsClass(servers, new TypeToken<Set<Server>>() {}.getType());
+            sockets.removeIf(wsContext -> !wsContext.session.isOpen());
+            for (WsContext socket : sockets) {
+                socket.send(gson.toJson(serverUpdate, ServerUpdate.class));
             }
 
+            serverUpdates.remove(server);
         });
 
 
     }
 
-    public void notifyChange(Server server) {
-        Set<Server> servers = updated.getOrDefault(server.getCategory(), new HashSet<>());
-        servers.add(server);
-        updated.put(server.getCategory(), servers);
+    public void notifyChange(Server server, ServerUpdate<?> serverUpdate) {
+        serverUpdates.put(server, serverUpdate);
     }
 
     public void registerGlobalListener(WsContext context) {

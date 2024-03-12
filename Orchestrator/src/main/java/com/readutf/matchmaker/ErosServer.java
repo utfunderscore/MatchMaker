@@ -6,13 +6,13 @@ import com.readutf.matchmaker.api.EndpointManager;
 import com.readutf.matchmaker.matches.MatchManager;
 import com.readutf.matchmaker.network.NetworkManager;
 import com.readutf.matchmaker.queue.QueueManager;
-import com.readutf.matchmaker.queue.QueueTask;
 import com.readutf.matchmaker.server.ServerManager;
 import com.readutf.matchmaker.server.socket.ServerUpdateManager;
 import com.readutf.matchmaker.shared.packet.Packet;
 import com.readutf.matchmaker.shared.packet.PacketManager;
 import com.readutf.matchmaker.shared.packet.Serializer;
 import com.readutf.matchmaker.shared.queue.QueueEvent;
+import com.readutf.matchmaker.shared.server.ServerUpdate;
 import io.netty.channel.Channel;
 import lombok.Getter;
 import org.reflections.Reflections;
@@ -48,7 +48,7 @@ public class ErosServer {
         File baseDir = new File(System.getProperty("user.dir"));
         this.packetManager = setupPacketManager();
         this.networkManager = new NetworkManager(Executors.newCachedThreadPool(), packetManager);
-        this.serverUpdateManager = new ServerUpdateManager(timer);
+        this.serverUpdateManager = new ServerUpdateManager(gson, timer);
         this.queueManager = new QueueManager(baseDir);
         this.channel = networkManager.startConnection(address, port);
         logger.info("Orchestrator started on " + address + ":" + port);
@@ -77,7 +77,7 @@ public class ErosServer {
     }
 
     public static Gson setupGson() {
-        return new GsonBuilder().registerTypeAdapterFactory(QueueEvent.getAdapter()).create();
+        return new GsonBuilder().registerTypeAdapterFactory(ServerUpdate.getAdapter()).registerTypeAdapterFactory(QueueEvent.getAdapter()).create();
     }
 
 

@@ -1,8 +1,8 @@
 package com.readutf.matchmaker.server;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.readutf.matchmaker.shared.server.Server;
+import com.google.gson.GsonBuilder;
+import com.readutf.matchmaker.shared.server.ServerUpdate;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
@@ -16,7 +16,9 @@ import java.util.concurrent.TimeUnit;
 public class ServerListener extends WebSocketClient {
 
     private static final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    private static final Gson gson = new Gson();
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapterFactory(ServerUpdate.getAdapter())
+            .create();
 
     private final ServerChangeHandler serverChangeHandler;
 
@@ -32,8 +34,8 @@ public class ServerListener extends WebSocketClient {
 
     @Override
     public void onMessage(String s) {
-        List<Server> queueResult = gson.fromJson(s, new TypeToken<>(){});
-        serverChangeHandler.handleLatestServers(queueResult);
+        ServerUpdate<?> queueResult = gson.fromJson(s, ServerUpdate.class);
+        serverChangeHandler.handleUpdate(queueResult);
     }
 
     @Override
