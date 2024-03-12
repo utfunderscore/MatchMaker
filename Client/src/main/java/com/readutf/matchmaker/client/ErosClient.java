@@ -34,7 +34,7 @@ public class ErosClient {
         this.packetManager = setupPacketManager();
         this.networkManager = new NetworkManager(Executors.newCachedThreadPool(), "localhost", 4254, packetManager);
         this.channel = networkManager.startConnection();
-        this.matchListeners = new MatchListeners(matchRequestHandler);
+        this.matchListeners = new MatchListeners(matchRequestHandler, packetManager);
         this.matchRequestHandler = matchRequestHandler;
 
         startHeartbeat(new Timer(), serversSupplier);
