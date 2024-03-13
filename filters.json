@@ -1,9 +1,1 @@
-{
-    "hub_category": {
-        "arguments": [
-            "hub"
-        ],
-        "filterName": "hub_category",
-        "creatorId": "category"
-    }
-}
+{"hub_category":{"filterName":"hub_category","creatorId":"category","arguments":["hub"]},"minigame":{"filterName":"minigame","creatorId":"category","arguments":["minigame"]}}

@@ -1,23 +1,22 @@
 package com.readutf.matchmaker.queue;
 
-import com.readutf.matchmaker.ErosServer;
 import com.readutf.matchmaker.api.socket.WebSocket;
 import com.readutf.matchmaker.matches.MatchManager;
-import com.readutf.matchmaker.queue.socket.QueueListenerSocket;
+import com.readutf.matchmaker.queue.impl.BasicMatchMaker;
+import com.readutf.matchmaker.queue.serverfilter.InbuiltFilters;
+import com.readutf.matchmaker.queue.serverfilter.ServerFilterCreator;
+import com.readutf.matchmaker.queue.serverfilter.ServerFilterStore;
+import com.readutf.matchmaker.queue.store.QueueStore;
+import com.readutf.matchmaker.queue.store.impl.FlatFileQueueStore;
 import com.readutf.matchmaker.shared.queue.Queue;
 import com.readutf.matchmaker.shared.queue.QueueEntry;
 import com.readutf.matchmaker.shared.queue.QueueEvent;
 import com.readutf.matchmaker.shared.queue.events.QueueDeleteEvent;
 import com.readutf.matchmaker.shared.queue.events.QueuePlayerEvent;
-import com.readutf.matchmaker.queue.impl.BasicMatchMaker;
-import com.readutf.matchmaker.queue.serverfilter.InbuiltFilters;
-import com.readutf.matchmaker.queue.serverfilter.ServerFilterCreator;
 import com.readutf.matchmaker.shared.queue.events.QueueUpdateEvent;
 import com.readutf.matchmaker.shared.queue.serverfilter.ServerFilterData;
-import com.readutf.matchmaker.queue.serverfilter.ServerFilterStore;
-import com.readutf.matchmaker.queue.store.QueueStore;
-import com.readutf.matchmaker.queue.store.impl.FlatFileQueueStore;
 import com.readutf.matchmaker.shared.server.Server;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +29,7 @@ public class QueueManager {
 
     private final ServerFilterStore serverFilterStore;
 
-    private final Map<UUID, String> playerToQueue;
+    private @Getter final Map<UUID, String> playerToQueue;
     private final Map<String, MatchMaker> matchMakers;
     private final Map<String, ServerFilterCreator> serverFilterCreators;
     private final Map<String, ServerFilterData> serverFilters;
@@ -83,19 +82,21 @@ public class QueueManager {
         return removed;
     }
 
-    public void addToQueue(String queueName, UUID playerId) {
+    public Queue addToQueue(String queueName, UUID playerId) {
         if(playerToQueue.containsKey(playerId)) throw new IllegalArgumentException("Player is already in a queue");
 
-        Queue orDefault = queues.getOrDefault(queueName, null);
-        if (orDefault == null) throw new IllegalArgumentException("Queue does not exist");
-        MatchMaker matchMaker = matchMakers.get(orDefault.getMatchMakerId());
+        Queue queue = queues.getOrDefault(queueName, null);
+        if (queue == null) throw new IllegalArgumentException("Queue does not exist");
+        MatchMaker matchMaker = matchMakers.get(queue.getMatchMakerId());
         if (matchMaker == null) throw new IllegalArgumentException("MatchMaker does not exist");
-        if (!matchMaker.validateEntry(orDefault, QueueEntry.create(playerId)))
+        if (!matchMaker.validateEntry(queue, QueueEntry.create(playerId)))
             throw new IllegalArgumentException("Queue entry does not meet matchmaker requirements");
 
         playerToQueue.put(playerId, queueName);
-        orDefault.addToQueue(playerId);
-        queueSocket.send(new QueuePlayerEvent(orDefault, true, List.of(playerId)), QueueEvent.class);
+        queue.addToQueue(playerId);
+        queueSocket.send(new QueuePlayerEvent(queue, true, List.of(playerId)), QueueEvent.class);
+
+        return queue;
     }
 
     public Queue removeFromQueue(UUID playerId) {

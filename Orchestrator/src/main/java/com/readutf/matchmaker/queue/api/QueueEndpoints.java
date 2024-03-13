@@ -1,6 +1,7 @@
 package com.readutf.matchmaker.queue.api;
 
 import com.readutf.matchmaker.api.annotation.*;
+import com.readutf.matchmaker.shared.api.ApiResponse;
 import com.readutf.matchmaker.shared.queue.Queue;
 import com.readutf.matchmaker.queue.QueueManager;
 import com.readutf.matchmaker.shared.queue.serverfilter.ServerFilterData;
@@ -44,8 +45,8 @@ public class QueueEndpoints {
 
     @PUT
     @MappingPath("/join")
-    public void addToQueue(String queueName, String playerId) {
-        queueManager.addToQueue(queueName, UUID.fromString(playerId));
+    public ApiResponse<Queue> addToQueue(String queueName, String playerId) {
+        return ApiResponse.success(queueManager.addToQueue(queueName, UUID.fromString(playerId)));
     }
 
     @PUT

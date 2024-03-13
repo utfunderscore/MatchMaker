@@ -4,6 +4,7 @@ import com.readutf.matchmaker.ErosServer;
 import com.readutf.matchmaker.api.socket.WebSocket;
 import com.readutf.matchmaker.matches.MatchManager;
 import com.readutf.matchmaker.shared.queue.Queue;
+import com.readutf.matchmaker.shared.queue.QueueEntry;
 import com.readutf.matchmaker.shared.queue.QueueEvent;
 import com.readutf.matchmaker.shared.queue.events.QueueErrorEvent;
 import com.readutf.matchmaker.shared.server.Server;
@@ -11,10 +12,8 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.TimerTask;
-import java.util.UUID;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
@@ -58,22 +57,47 @@ public class QueueTask extends TimerTask {
             try {
                 List<List<UUID>> teams = matchMaker.onIteration(queue, queue.getInQueue());
 
+                for (QueueEntry queueEntry : queue.getInQueue()) {
+                    for (UUID player : queueEntry.getPlayers()) {
+                        queueManager.getPlayerToQueue().remove(player);
+                    }
+                }
                 queue.getInQueue().removeIf(queueEntry -> queueEntry.getPlayers().stream().anyMatch(uuid -> teams.stream().flatMap(Collection::stream).toList().contains(uuid)));
+
 
                 Predicate<Server> filter = queueManager.getFilter(queue.getServerFilterId());
                 if (filter == null) {
                     throw new Exception("Filter not found for queue: " + queue.getName());
                 }
 
+                logger.info("Requesting match for queue: " + queue.getName() + " with teams: " + teams.size() + " in " + (System.currentTimeMillis() - start) + "ms");
+                logger.info("FilterId: " + filter);
+
+
                 matchManager.requestMatch(queue.getName(), filter, teams, 3)
-                        .thenAccept(listenerSocket::send);
+                        .thenAccept(queueResultEvent -> {
+                            try {
+                                System.out.println("Match result: " + queueResultEvent);
+                                listenerSocket.send(queueResultEvent, QueueEvent.class);
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
 
 
             } catch (Exception e) {
 
+                e.printStackTrace();
+
                 listenerSocket.send(new QueueErrorEvent(queue.getName(), e.getMessage()), QueueEvent.class);
                 logger.error("Failed to find a match for queue: " + queue.getName(), e);
 
+                for (QueueEntry queueEntry : new ArrayList<>(queue.getInQueue())) {
+                    for (UUID player : queueEntry.getPlayers()) {
+                        queueManager.removeFromQueue(player);
+                    }
+                }
                 queue.getInQueue().clear();
             }
 

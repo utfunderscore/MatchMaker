@@ -45,6 +45,12 @@ tasks.test {
     useJUnitPlatform()
 }
 
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "com.readutf.matchmaker.StartServer"
+    }
+}
+
 // Change shadow jar name
 tasks.shadowJar {
     archiveFileName.set("Orchestrator.jar")

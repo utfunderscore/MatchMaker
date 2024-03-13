@@ -2,8 +2,9 @@ package com.readutf.matchmaker.shared.queue.events;
 
 import com.readutf.matchmaker.shared.queue.QueueEvent;
 import lombok.Getter;
+import lombok.ToString;
 
-@Getter
+@Getter @ToString
 public class QueueErrorEvent extends QueueEvent {
 
     private final String queueId;

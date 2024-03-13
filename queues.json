@@ -1,1 +1,1 @@
-[{"name":"test","matchMakerId":"simple","serverFilterId":"hub_category","inQueue":[],"maxTeamSize":1,"minTeamSize":1,"numberOfTeams":2}]
+[{"name":"sumo","matchMakerId":"simple","serverFilterId":"minigame","inQueue":[],"maxTeamSize":1,"minTeamSize":1,"numberOfTeams":2},{"name":"test","matchMakerId":"simple","serverFilterId":"minigame","inQueue":[],"maxTeamSize":1,"minTeamSize":1,"numberOfTeams":2}]

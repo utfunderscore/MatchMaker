@@ -6,7 +6,12 @@ public class InbuiltFilters {
         return args -> {
             if(args.length != 1) throw new IllegalArgumentException("Invalid arguments");
             String category = args[0];
-            return server -> server.getCategory().equalsIgnoreCase(category);
+
+            return server -> {
+                System.out.println("category: " + server.getCategory());
+                System.out.println("category: " + category);
+                return server.getCategory().equalsIgnoreCase(category);
+            };
         };
     }
 

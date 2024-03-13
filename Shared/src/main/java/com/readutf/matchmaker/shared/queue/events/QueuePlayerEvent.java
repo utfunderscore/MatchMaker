@@ -3,11 +3,12 @@ package com.readutf.matchmaker.shared.queue.events;
 import com.readutf.matchmaker.shared.queue.Queue;
 import com.readutf.matchmaker.shared.queue.QueueEvent;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.UUID;
 
-@Getter
+@Getter @ToString
 public class QueuePlayerEvent extends QueueEvent {
 
     private final Queue queue;
