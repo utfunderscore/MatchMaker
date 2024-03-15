@@ -12,11 +12,11 @@ import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Getter
 public class QueueTask extends TimerTask {
@@ -38,72 +38,63 @@ public class QueueTask extends TimerTask {
     @Override
     public void run() {
 
-        for (Queue queue : queueManager.getQueues()) {
+        for (Queue queue : new ArrayList<>(queueManager.getQueues())) {
+            if(queue.getInQueue().isEmpty()) continue;
+            if(queue.getInQueue().size() < queue.getNumberOfTeams()) return;
 
-//            executorService.submit(() -> {
-
-            long start = System.currentTimeMillis();
-
-            String matchMakerId = queue.getMatchMakerId();
-            MatchMaker matchMaker = queueManager.getMatchMaker(matchMakerId);
-            if (matchMaker == null) {
-                logger.warn("MatchMaker not found for queue: " + queue.getName());
-                return;
+            MatchMaker matchMaker = queueManager.getMatchMaker(queue.getMatchMakerId());
+            if(matchMaker == null) {
+                logger.error("MatchMaker " + queue.getMatchMakerId() + " not found for queue " + queue.getId());
+                invalidateQueue("MatchMaker not found", queue);
+                continue;
             }
 
-            if (queue.getQueueSize() < queue.getMinTeamSize() * queue.getNumberOfTeams()) return;
+            Predicate<Server> serverFilter = queueManager.getFilter(queue.getServerFilterId());
+            if(serverFilter == null) {
+                logger.error("ServerFilter " + queue.getServerFilterId() + " not found for queue " + queue.getId());
+                invalidateQueue("ServerFilter not found", queue);
+                continue;
+            }
 
-
+            List<List<UUID>> teams;
             try {
-                List<List<UUID>> teams = matchMaker.onIteration(queue, queue.getInQueue());
-
-                for (QueueEntry queueEntry : queue.getInQueue()) {
-                    for (UUID player : queueEntry.getPlayers()) {
-                        queueManager.getPlayerToQueue().remove(player);
-                    }
-                }
-                queue.getInQueue().removeIf(queueEntry -> queueEntry.getPlayers().stream().anyMatch(uuid -> teams.stream().flatMap(Collection::stream).toList().contains(uuid)));
-
-
-                Predicate<Server> filter = queueManager.getFilter(queue.getServerFilterId());
-                if (filter == null) {
-                    throw new Exception("Filter not found for queue: " + queue.getName());
-                }
-
-                logger.info("Requesting match for queue: " + queue.getName() + " with teams: " + teams.size() + " in " + (System.currentTimeMillis() - start) + "ms");
-                logger.info("FilterId: " + filter);
-
-
-                matchManager.requestMatch(queue.getName(), filter, teams, 3)
-                        .thenAccept(queueResultEvent -> {
-                            try {
-                                System.out.println("Match result: " + queueResultEvent);
-                                listenerSocket.send(queueResultEvent, QueueEvent.class);
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-
-
+               teams = matchMaker.onIteration(queue, queue.getInQueue());
             } catch (Exception e) {
-
-                e.printStackTrace();
-
-                listenerSocket.send(new QueueErrorEvent(queue.getName(), e.getMessage()), QueueEvent.class);
-                logger.error("Failed to find a match for queue: " + queue.getName(), e);
-
-                for (QueueEntry queueEntry : new ArrayList<>(queue.getInQueue())) {
-                    for (UUID player : queueEntry.getPlayers()) {
-                        queueManager.removeFromQueue(player);
-                    }
-                }
-                queue.getInQueue().clear();
+                logger.debug("Error while iterating queue " + queue.getId() + " with matchmaker " + matchMaker.getClass().getSimpleName(), e);
+                continue;
             }
 
-            logger.debug("QueueTask took " + (System.currentTimeMillis() - start) + "ms to run");
+            for (List<UUID> team : teams) {
+                for (UUID uuid : team) {
+                    queueManager.removeFromQueue(uuid);
+                }
+            }
 
+            matchManager.requestMatch(queue.getId(), serverFilter, teams, 3)
+                    .thenAccept(queueResultEvent -> {
+                        try {
+                            System.out.println("Match result: " + queueResultEvent);
+                            listenerSocket.send(queueResultEvent, QueueEvent.class);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
         }
 
     }
+
+    public void invalidateQueue(String reason, Queue queue) {
+        List<UUID> allPlayers = queue.getInQueue().stream().flatMap(queueEntry -> queueEntry.getPlayers().stream()).collect(Collectors.toList());
+        listenerSocket.send(
+                new QueueErrorEvent(queue.getId(),
+                        allPlayers, reason),
+                QueueEvent.class
+        );
+
+        for (UUID allPlayer : allPlayers) {
+            queueManager.removeFromQueue(allPlayer);
+        }
+
+    }
+
 }
