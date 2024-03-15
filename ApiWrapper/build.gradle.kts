@@ -54,6 +54,9 @@ tasks.test {
     useJUnitPlatform()
 }
 
+tasks.compileJava {
+    options.release = 21
+}
 
 // Change shadow jar name
 tasks.shadowJar {
