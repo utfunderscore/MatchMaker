@@ -11,6 +11,8 @@ import com.readutf.matchmaker.shared.queue.events.QueueResultEvent;
 import com.readutf.matchmaker.shared.server.Server;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -18,6 +20,8 @@ import java.util.function.Predicate;
 
 @Getter
 public class MatchManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(MatchManager.class);
 
     private final ServerManager serverManager;
     private final Map<UUID, CompletableFuture<MatchResponse>> matchRequests;
@@ -42,14 +46,14 @@ public class MatchManager {
 
             for (int i = 0; i < maxAttempts; i++) {
 
-                System.out.println("attempt " + i);
+                logger.info("Attempting to find a server for queue %s (attempt #%d)".formatted(queueId, i + 1));
 
                 Optional<RegisteredServer> optimalServer = findOptimalServer(filter, servers, alreadyTried);
 
                 // If no servers are available, return a failed response
                 if (optimalServer.isEmpty()) {
                     responsesFuture.completeExceptionally(new IllegalStateException("No servers available"));
-                    System.out.println("No servers available");
+                    logger.warn("No servers available for queue %s".formatted(queueId));
                     return;
                 }
                 RegisteredServer server = optimalServer.get();
@@ -57,10 +61,12 @@ public class MatchManager {
                 QueueResultEvent queueResultEvent = requestServer(queueId, teams, server, requestId, responses);
                 if (queueResultEvent != null) {
                     responsesFuture.complete(queueResultEvent);
-                    break;
+                    return;
                 } else alreadyTried.add(server);
             }
-            responsesFuture.complete(new QueueResultEvent(queueId, null, null, responses));
+
+
+            logger.warn("Failed to find a server for queue %s after %d attempts".formatted(queueId, maxAttempts));
         });
 
         return responsesFuture;
@@ -102,11 +108,14 @@ public class MatchManager {
         matchRequests.put(matchRequest.getRequestId(), future);
 
         MatchResponse response;
+        long start = System.currentTimeMillis();
         try {
             response = future.get(500, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             response = MatchResponse.failure(requestId, "Failed to get response from server");
         }
+        long end = System.currentTimeMillis();
+        logger.debug("Match request took %dms".formatted(end - start));
 
         responses.add(response);
         if (response.isSuccessful()) {

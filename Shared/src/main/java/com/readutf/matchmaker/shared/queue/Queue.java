@@ -10,14 +10,15 @@ import java.util.UUID;
 @Getter
 public class Queue {
 
-    private final String name, matchMakerId, serverFilterId;
+    private final String id, displayName, matchMakerId, serverFilterId;
     private final List<QueueEntry> inQueue;
     private final int maxTeamSize;
     private final int minTeamSize;
     private final int numberOfTeams;
 
-    public Queue(String name, String matchMakerId, String serverFilterId, int maxTeamSize, int minTeamSize, int numberOfTeams) {
-        this.name = name;
+    public Queue(String id, String displayName, String matchMakerId, String serverFilterId, int maxTeamSize, int minTeamSize, int numberOfTeams) {
+        this.id = id;
+        this.displayName = displayName;
         this.matchMakerId = matchMakerId;
         this.serverFilterId = serverFilterId;
         this.inQueue = new ArrayList<>();

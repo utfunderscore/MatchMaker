@@ -51,7 +51,7 @@ public class QueueManager {
                 "simple", new BasicMatchMaker()
         );
         this.serverFilters = serverFilterStore.loadAll();
-        this.queueStore.loadQueues().forEach(queue -> queues.put(queue.getName(), queue));
+        this.queueStore.loadQueues().forEach(queue -> queues.put(queue.getId(), queue));
     }
 
     public QueueTask startQueueTask(MatchManager matchManager, WebSocket queueSocket) {
@@ -66,8 +66,8 @@ public class QueueManager {
     public Queue createQueue(String queueName, String matchMakerId, String filterId, int maxTeamSize, int minTeamSize, int numberOfTeams) throws Exception {
         if (!matchMakers.containsKey(matchMakerId)) throw new Exception("MatchMaker does not exist");
 
-        Queue queue = new Queue(queueName, matchMakerId, filterId, maxTeamSize, minTeamSize, numberOfTeams);
-        queues.put(queue.getName(), queue);
+        Queue queue = new Queue(queueName, queueName, matchMakerId, filterId, maxTeamSize, minTeamSize, numberOfTeams);
+        queues.put(queue.getId(), queue);
         queueStore.saveQueues(queues.values());
 
         queueSocket.send(new QueueUpdateEvent(queue), QueueEvent.class);
