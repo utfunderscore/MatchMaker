@@ -53,14 +53,8 @@ public class QueueListener extends WebSocketClient {
 
     @Override
     public void onError(Exception e) {
-        if (e instanceof ConnectException) {
-            System.out.println("retrying connection in 15 seconds...");
 
-            executorService.schedule(() -> {
-                System.out.println("reconnecting...");
-                reconnect();
-            }, 15, TimeUnit.SECONDS);
-        }
+
     }
 
     public static QueueListener instance(String uri, QueueEventHandler queueEventHandler) {

@@ -41,18 +41,12 @@ public class ServerListener extends WebSocketClient {
     @Override
     public void onClose(int i, String s, boolean b) {
 
+        serverChangeHandler.onOrchestrationClose();
     }
 
     @Override
     public void onError(Exception e) {
-        if (e instanceof ConnectException) {
-            System.out.println("retrying connection in 15 seconds...");
 
-            executorService.schedule(() -> {
-                System.out.println("reconnecting...");
-                reconnect();
-            }, 15, TimeUnit.SECONDS);
-        }
     }
 
     public static ServerListener instance(String uri, List<String> categories, ServerChangeHandler serverChangeHandler) {
