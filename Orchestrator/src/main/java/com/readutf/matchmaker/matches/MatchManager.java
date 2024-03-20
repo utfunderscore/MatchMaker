@@ -60,6 +60,9 @@ public class MatchManager {
 
                 QueueResultEvent queueResultEvent = requestServer(queueId, teams, server, requestId, responses);
                 if (queueResultEvent != null) {
+
+                    queueResultEvent.getServer().setActiveGames(queueResultEvent.getServer().getActiveGames() + 1);
+
                     responsesFuture.complete(queueResultEvent);
                     return;
                 } else alreadyTried.add(server);
@@ -76,18 +79,9 @@ public class MatchManager {
     private static Optional<RegisteredServer> findOptimalServer(Predicate<Server> filter, Collection<RegisteredServer> servers, List<Server> alreadyTried) {
         // Find the server with the lowest load percentage and that matches the filter
 
-
         Optional<RegisteredServer> optimalServer = servers.stream()
-                .filter(registeredServer -> {
-                    boolean tried = !alreadyTried.contains(registeredServer);
-                    System.out.println("alreadyTried: " + tried);
-                    return tried;
-                })
-                .filter(registeredServer -> {
-                    boolean tooManyGames = registeredServer.getActiveGames() < registeredServer.getMaxGames();
-                    System.out.println("tooManyGames: " + tooManyGames);
-                    return tooManyGames;
-                })
+                .filter(registeredServer -> !alreadyTried.contains(registeredServer))
+                .filter(registeredServer -> registeredServer.getActiveGames() < registeredServer.getMaxGames())
                 .filter(filter)
                 .min(Comparator.comparingDouble(Server::getLoadPercentage));
 
