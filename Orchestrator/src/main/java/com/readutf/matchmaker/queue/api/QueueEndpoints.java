@@ -6,18 +6,26 @@ import com.readutf.matchmaker.shared.queue.Queue;
 import com.readutf.matchmaker.queue.QueueManager;
 import com.readutf.matchmaker.shared.queue.serverfilter.ServerFilterData;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.Delegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @RestEndpoint("/queue")
 @RequiredArgsConstructor
 public class QueueEndpoints {
 
+    private static Logger logger = LoggerFactory.getLogger(QueueEndpoints.class);
+
     private final QueueManager queueManager;
+
+    private static final ExecutorService singleExecutor = Executors.newSingleThreadExecutor();
 
     @PUT
     @MappingPath()
@@ -45,8 +53,11 @@ public class QueueEndpoints {
 
     @PUT
     @MappingPath("/join")
-    public ApiResponse<Queue> addToQueue(String queueName, String playerId) {
-        return ApiResponse.success(queueManager.addToQueue(queueName, UUID.fromString(playerId)));
+    public boolean addToQueue(String queueName, String playerId) {
+        synchronized (queueManager.getPlayerToQueue()) {
+           queueManager.addToQueue(queueName, UUID.fromString(playerId));
+        }
+        return true;
     }
 
     @PUT

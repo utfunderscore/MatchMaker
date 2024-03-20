@@ -116,11 +116,11 @@ public class EndpointManager {
 
             } catch (InvocationTargetException invocationException) {
                 Throwable targetException = invocationException.getTargetException();
-                logger.debug("Error while invoking method " + method.getName(), targetException);
+                logger.warn("Error while invoking method " + method.getName(), targetException);
                 ApiResponse<Object> response = ApiResponse.error(targetException.getMessage());
                 ctx.json(response);
             } catch (Exception e) {
-                logger.debug("Error while invoking method " + method.getName(), e);
+                logger.warn("Error while invoking method " + method.getName(), e);
                 ApiResponse<Object> response = ApiResponse.error(e.getMessage());
                 ctx.json(response);
             }

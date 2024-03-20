@@ -42,7 +42,7 @@ public interface QueueService {
     Call<ApiResponse<Boolean>> deleteQueue(String queueName);
 
     @PUT("queue/join")
-    Call<ApiResponse<Queue>> joinQueue(@Query("queueName") String queueName, @Query("playerId") String playerId);
+    Call<ApiResponse<Boolean>> joinQueue(@Query("queueName") String queueName, @Query("playerId") String playerId);
 
     @PUT("queue/leave")
     Call<ApiResponse<Void>> leaveQueue(@Query("playerId") String playerId);
