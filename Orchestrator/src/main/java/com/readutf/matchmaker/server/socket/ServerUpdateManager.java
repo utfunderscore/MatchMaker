@@ -40,7 +40,7 @@ public class ServerUpdateManager extends TimerTask {
             serverUpdates.remove(server);
         });
 
-
+        serverUpdates.clear();
     }
 
     public void notifyChange(Server server, ServerUpdate<?> serverUpdate) {
