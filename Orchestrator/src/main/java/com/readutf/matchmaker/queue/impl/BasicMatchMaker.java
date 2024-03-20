@@ -15,8 +15,8 @@ public class BasicMatchMaker implements MatchMaker {
     public @NotNull List<List<UUID>> onIteration(Queue queue, List<QueueEntry> queueEntry) {
         List<List<UUID>> teams = new ArrayList<>();
 
-        for (QueueEntry entry : queueEntry) {
-            teams.add(entry.getPlayers());
+        for (int i = 0; i < queue.getNumberOfTeams(); i++) {
+            teams.add(queueEntry.get(i).getPlayers());
         }
 
         return teams;
