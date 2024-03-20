@@ -64,16 +64,18 @@ public class QueueTask extends TimerTask {
                 continue;
             }
 
-            for (List<UUID> team : teams) {
-                for (UUID uuid : team) {
-                    queueManager.removeFromQueue(uuid);
-                }
-            }
+
 
             matchManager.requestMatch(queue.getId(), serverFilter, teams, 3)
                     .thenAccept(queueResultEvent -> {
                         try {
-                            System.out.println("Match result: " + queueResultEvent);
+
+                            for (List<UUID> team : teams) {
+                                for (UUID uuid : team) {
+                                    queueManager.removeFromQueue(uuid);
+                                }
+                            }
+
                             listenerSocket.send(queueResultEvent, QueueEvent.class);
                         } catch (Exception e) {
                             e.printStackTrace();
